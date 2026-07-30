@@ -55,3 +55,22 @@ bash /c/Users/jasmi/safe-package-install.sh npm maplibre-gl
 
 Say the word and I'll run these (and the dev-dependency set: eslint, prettier,
 vitest, @playwright/test, typescript-eslint) in the next session.
+
+## Scripts (Part I.D of the master prompt)
+
+All required setup outputs now exist:
+
+| Script | Purpose |
+|---|---|
+| `scripts/setup-windows.ps1` | Idempotent local setup (Windows) |
+| `scripts/setup-unix.sh` | Idempotent local setup (macOS/Linux) |
+| `scripts/verify-environment.mjs` | Checks runtimes, env var presence (no values printed), Docker Compose file; writes `artifacts/setup-verification.{json,md}` |
+| `scripts/dev.ps1` / `scripts/dev.sh` | Starts local infra (if Docker available) + dev server |
+| `scripts/reset-local-data.ps1` / `scripts/reset-local-data.sh` | Recreates local Postgres/Redis containers and reseeds — **local data only** |
+
+Run `node scripts/verify-environment.mjs` any time to check environment status
+without needing Docker or installed dependencies — it degrades gracefully and
+reports what's missing.
+
+See also [`ENVIRONMENT.md`](./ENVIRONMENT.md) for the full variable reference and
+[`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) for common issues.

@@ -1,0 +1,122 @@
+{
+  "timestamp": "unknown",
+  "runtimes": [
+    {
+      "name": "node",
+      "present": true,
+      "version": "v24.16.0"
+    },
+    {
+      "name": "npm",
+      "present": true,
+      "version": "11.17.0"
+    },
+    {
+      "name": "git",
+      "present": true,
+      "version": "git version 2.51.2.windows.1"
+    },
+    {
+      "name": "docker",
+      "present": false,
+      "version": null
+    },
+    {
+      "name": "docker compose",
+      "present": false,
+      "version": null
+    }
+  ],
+  "envVars": [
+    {
+      "name": "APP_ENV",
+      "present": false
+    },
+    {
+      "name": "APP_BASE_URL",
+      "present": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "present": false
+    },
+    {
+      "name": "REDIS_URL",
+      "present": false
+    },
+    {
+      "name": "OBJECT_STORAGE_ENDPOINT",
+      "present": false
+    },
+    {
+      "name": "OBJECT_STORAGE_BUCKET",
+      "present": false
+    },
+    {
+      "name": "OBJECT_STORAGE_ACCESS_KEY",
+      "present": false
+    },
+    {
+      "name": "OBJECT_STORAGE_SECRET_KEY",
+      "present": false
+    },
+    {
+      "name": "AUTH_SECRET",
+      "present": false
+    },
+    {
+      "name": "WEATHER_PROVIDER_PRIMARY",
+      "present": false
+    },
+    {
+      "name": "WEATHER_PROVIDER_API_KEY",
+      "present": false
+    },
+    {
+      "name": "SPACE_WEATHER_PROVIDER",
+      "present": false
+    },
+    {
+      "name": "MAP_STYLE_URL",
+      "present": false
+    },
+    {
+      "name": "MAP_TILE_TOKEN",
+      "present": false
+    },
+    {
+      "name": "PUSH_PUBLIC_KEY",
+      "present": false
+    },
+    {
+      "name": "PUSH_PRIVATE_KEY",
+      "present": false
+    },
+    {
+      "name": "FCM_CREDENTIALS_PATH",
+      "present": false
+    },
+    {
+      "name": "SENTRY_DSN",
+      "present": false
+    },
+    {
+      "name": "POSTHOG_KEY",
+      "present": false
+    },
+    {
+      "name": "FEATURE_FLAGS_SOURCE",
+      "present": false
+    }
+  ],
+  "dockerCompose": {
+    "filePresent": true
+  },
+  "packageJson": {
+    "present": true
+  },
+  "notes": [
+    "This is a Phase 0 scaffold. Application dependencies (Next.js, Prisma, etc.) are not installed yet — see docs/SETUP.md.",
+    "Docker was not detected as installed when this repo was scaffolded (2026-07-31); install Docker Desktop to bring up Postgres/Redis via docker-compose.yml."
+  ]
+}
