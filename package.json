@@ -1,0 +1,20 @@
+{
+  "name": "el-nino",
+  "version": "0.0.1",
+  "private": true,
+  "description": "El Nino weather-only social platform",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
