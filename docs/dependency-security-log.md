@@ -267,6 +267,29 @@ typecheck` (0 errors, now against `typescript@5.9.3`), and `npx prettier
   `npx playwright --version` reports `1.62.1` without needing any browser
   binary.
 
+### `eslint-plugin-react-hooks@7.1.1` (dev)
+
+- **Publisher:** `react-bot <react-core@meta.com>` (Meta's official React ESLint
+  plugin account).
+- **Approved:** 2026-07-31, ahead of Phase 2's stateful client components.
+- **Triggered heuristics:** all traced to peer dependencies npm auto-installed
+  alongside it (`eslint`, `ajv`, `zod`, `@babel/parser`), not the plugin's own
+  source — zod's own IP-address-validation unit test fixtures (including
+  deliberately-invalid addresses like `999.999.999.999` used to test its
+  validator's rejection logic), eslint's embedded HTML-report icon and its own
+  `no-eval`/`no-implied-eval` rule source (same non-execution pattern
+  documented on the `eslint@10.8.0` entry), ajv's README sponsor link, and
+  Babel sourcemap noise. No ClamAV/GuardDog/Socket hard finding.
+- **Config integration:** `eslint-plugin-react-hooks@7.1.1`'s
+  `configs["recommended-latest"]` export turned out to still be legacy
+  eslintrc format (`"plugins": ["react-hooks"]` as a string array), which
+  ESLint 10's flat config rejects outright. Used `configs.flat.recommended`
+  instead — verified via `eslint --print-config` that all 16
+  `react-hooks/*` rules are actually registered before trusting it.
+- **Post-install verification:** `npm run lint`, `npm run typecheck`, `npx
+vitest run` (12/12), and `npm run build` all pass cleanly with the plugin
+  active.
+
 ## Telemetry
 
 `NEXT_TELEMETRY_DISABLED=1` is set in `.env.example` and exported by

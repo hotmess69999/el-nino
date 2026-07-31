@@ -230,5 +230,20 @@
     ],
     "reason": "Official Playwright test-runner package published by Microsoft's verified Playwright release bot. base64/IP hits trace to playwright-core's bundled Chrome DevTools Protocol type definitions (protocol.d.ts version-shaped numbers) and its own minified coreBundle.js. The suspicious-URL hits are playwright-core launching a localhost debug/inspector server (http://127.0.0.1:${address.port}) and vite's own dev-server type docs (http://127.0.0.1:8080 example) — both expected local-only addresses, not external callbacks. eval() hits are overwhelmingly Playwright's own `.$eval()`/`.$$eval()` public DOM-evaluation API method names (a Puppeteer/Playwright naming convention, matched by the heuristic's substring search — not the dangerous eval() function), plus one legitimate dynamic-import-fallback use in vite's bundled chunk and one in an ESM-transform loader. env-var-harvest hits are playwright-core's browser-binary download/proxy configuration (reads PLAYWRIGHT_* env vars, downloads browser binaries over the network — exactly what a browser-automation tool needs to do) and vite's dev-server config, same as vitest above. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view @playwright/test@1.62.1 dist.integrity`.",
     "note": "@playwright/test does not itself download browser binaries at install time in this scan (no install hook was flagged) — browser binaries are fetched separately via `npx playwright install`, which is NOT run by this install and must be reviewed/run as its own explicit step before end-to-end tests can execute."
+  },
+  {
+    "name": "eslint-plugin-react-hooks",
+    "version": "7.1.1",
+    "integrity": "sha512-f2I7Gw6JbvCexzIInuSbZpfdQ44D7iqdWX01FKLvrPgqxoE7oMj8clOfto8U6vYiz4yd5oKu39rRSVOe1zRu0g==",
+    "publisher": "react-bot <react-core@meta.com> (Meta, official React ESLint plugin)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official React ESLint plugin published by Meta's react-bot account. All findings trace to peer dependencies npm auto-installed alongside it (eslint, ajv, zod, @babel/parser), not the plugin's own source: eslint's embedded HTML-report PNG icon (base64), zod's own IP-address-validation unit test fixtures (192.168.1.1, deliberately-invalid 999.999.999.999/256.256.256.256, etc. — testing zod's own IP schema validator), ajv's README sponsor link, eslint's own no-eval/no-implied-eval rule source and eslint-scope (same pattern-detection-not-execution situation documented on the eslint@10.8.0 entry above), and @babel/parser's sourcemap noise. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view eslint-plugin-react-hooks@7.1.1 dist.integrity`."
   }
 ]
