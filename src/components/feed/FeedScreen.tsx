@@ -23,9 +23,36 @@ const VERIFICATION_LABEL: Record<string, string> = {
 export function FeedScreen() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const progressRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [muted, setMuted] = useState(true);
   const [paused, setPaused] = useState(false);
+
+  // Progress is driven imperatively (not React state) so playback doesn't
+  // trigger a rerender on every timeupdate tick — only the active video's
+  // bar is wired up at a time, and it's reset whenever the active report
+  // changes.
+  useEffect(() => {
+    const video = videoRefs.current[activeIndex];
+    const bar = progressRefs.current[activeIndex];
+    if (!video || !bar) return;
+
+    bar.value = "0";
+
+    const updateProgress = () => {
+      if (!video.duration || Number.isNaN(video.duration)) return;
+      bar.value = String((video.currentTime / video.duration) * 100);
+    };
+
+    video.addEventListener("timeupdate", updateProgress);
+    return () => video.removeEventListener("timeupdate", updateProgress);
+  }, [activeIndex]);
+
+  function handleSeek(index: number, percent: number) {
+    const video = videoRefs.current[index];
+    if (!video || !video.duration || Number.isNaN(video.duration)) return;
+    video.currentTime = (percent / 100) * video.duration;
+  }
 
   useEffect(() => {
     const container = containerRef.current;
@@ -133,6 +160,22 @@ export function FeedScreen() {
                 {VERIFICATION_LABEL[report.event.verificationStatus]}
               </span>
             </div>
+
+            {isActive && (
+              <input
+                ref={(el) => {
+                  progressRefs.current[index] = el;
+                }}
+                type="range"
+                className={styles.progress}
+                min={0}
+                max={100}
+                step={0.1}
+                defaultValue={0}
+                aria-label={`Seek within ${report.event.name} weather report video`}
+                onChange={(e) => handleSeek(index, Number(e.target.value))}
+              />
+            )}
 
             <div className={styles.bottomOverlay}>
               <p className={styles.contributor}>{report.contributorHandle}</p>
