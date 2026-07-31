@@ -52,3 +52,22 @@ If Better Auth's operational burden (session infra, admin tooling) turns out to
 outweigh the data-ownership benefit before Phase 4 ships, switch to Clerk — this is
 a Phase 4 blocker decision, not a Phase 0 one, so there's no sunk migration cost yet
 if reconsidered before implementation begins.
+
+## Implementation notes (Phase 4)
+
+- Better Auth's core `User` schema requires a `name` field — the app exposes this
+  as `displayName` at the service/UI boundary
+  (`src/lib/users/service.ts`/`src/lib/users/validation.ts`) rather than fighting
+  Better Auth's field-mapping options, but the underlying Prisma column is `name`.
+  Don't rename it in the schema without checking `better-auth/adapters/prisma`.
+- `email/password` only for this phase (`emailAndPassword: { enabled: true,
+  minPasswordLength: 8 }` in `src/lib/auth/server.ts`) — no email delivery is
+  configured, so there's no verification-email step; accounts are usable
+  immediately after sign-up. Social providers, passkeys, SMS, and production email
+  are explicitly out of scope per `docs/checkpoints/PHASE-4-PLAN.md`.
+- `username`/`bio`/`verificationType`/`weatherScore` are declared via
+  `user.additionalFields` in `src/lib/auth/server.ts` — `verificationType` and
+  `weatherScore` are server-only (`input: false`), so they can't be set through the
+  public sign-up/update-user API surface.
+- Sessions: 7-day expiry, refreshed once per day of activity
+  (`session.expiresIn`/`updateAge`) — short-lived per section 22, not indefinite.
