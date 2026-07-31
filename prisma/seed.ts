@@ -1,5 +1,6 @@
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { fetchLocalWarnings } from "../src/lib/warnings/localAdapter";
 
 /**
  * Deterministic local dev/test data — fixed IDs and fields so this can be
@@ -79,6 +80,19 @@ async function main() {
       notificationsEnabled: true,
     },
   });
+
+  for (const record of fetchLocalWarnings()) {
+    await prisma.officialWarning.upsert({
+      where: {
+        providerId_providerWarningId: {
+          providerId: record.providerId,
+          providerWarningId: record.providerWarningId,
+        },
+      },
+      create: { ...record, cancelled: false },
+      update: { ...record },
+    });
+  }
 
   console.log("Seed complete:", { stormWatcher: stormWatcher.username, auroraChaser: auroraChaser.username });
   await prisma.$disconnect();

@@ -28,13 +28,24 @@ for why Prisma + PostgreSQL, and the Prisma 7 driver-adapter/generator specifics
 - **UserPreference** — one row per user (`userId` is the primary key), created
   lazily on first write (`src/lib/preferences/service.ts` upserts); a user with no
   row yet gets sensible defaults from `getPreferences`, not a missing-row error.
+- **Report** + **MediaAsset** (Phase 5) — a single-shot upload, one `MediaAsset`
+  per `Report` (not multiple derivatives yet). `publicLatitude`/`publicLongitude`
+  are fuzzed to ~1.1km precision before storage (`fuzzCoordinate`,
+  `src/lib/uploads/validation.ts`) — the exact submitted point is never
+  persisted. `ReportStatus` (`processing`/`published`/`rejected`) exists for a
+  future async pipeline step; currently reports go straight to `published`.
+- **OfficialWarning** (Phase 6) — point + radius, not a geometry column, same
+  reasoning as `WatchZone`. Unique on `(providerId, providerWarningId)` so
+  re-ingesting the same provider record is idempotent (upsert, never a
+  duplicate row).
 
 ## Migrations
 
-`prisma/migrations/20260731190000_init/` is the initial schema, generated via
-`prisma migrate diff --from-empty` against the schema file (no live database was
-reachable to generate it via the normal `prisma migrate dev` flow — see ADR 0004).
-Apply it locally with `npm run db:migrate` once a database is reachable
+`prisma/migrations/20260731190000_init/` is the initial schema, and
+`prisma/migrations/20260731200000_reports_and_warnings/` adds Phase 5/6's
+tables. Both generated via schema diffing (not a live `prisma migrate dev` —
+no database was reachable in either pass, see ADR 0004 "Why not run in this
+pass"). Apply locally with `npm run db:migrate` once a database is reachable
 (`docker compose up -d postgres` first). Production uses `prisma migrate deploy`
 (not yet wired into a deployment pipeline).
 
@@ -42,7 +53,8 @@ Apply it locally with `npm run db:migrate` once a database is reachable
 
 `prisma/seed.ts` creates two deterministic, clearly-fictional dev users (matching
 the existing feed's `@dfw_stormwatch`/`@tromso_aurora_chaser` handles from
-`src/lib/feed/reports.ts`) with one Watch Zone and one follow relationship each.
+`src/lib/feed/reports.ts`) with one Watch Zone and one follow relationship each,
+plus two fixture `OfficialWarning` rows (`src/lib/warnings/localAdapter.ts`).
 Upsert-based, safe to rerun. Run with `npm run db:seed`. These seed users have no
 password/Account row, so they can't sign in through the UI — they exist only to
 give follow/Watch-Zone relations something to point at; create a real account via

@@ -18,3 +18,6 @@ next-env.d.ts
 investigations/maplibre-geojson/vendor/
 
 /src/generated/prisma
+
+# Locally-stored upload fixtures (Phase 5 local storage adapter) — never committed
+/public/uploads/
