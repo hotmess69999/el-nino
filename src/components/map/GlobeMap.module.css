@@ -89,6 +89,21 @@
   outline-offset: 2px;
 }
 
+/* A Watch Zone marker is a plain point, never a drawn circle/polygon — see
+   docs/checkpoints/PHASE-4-PLAN.md "Watch Zones" for why (GeoJSON/vector
+   sources are gated; a raster circle would imply a precision the point+
+   radius model doesn't have). */
+.watchZoneMarker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--color-canvas);
+  background: var(--color-teal);
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 30%);
+  cursor: default;
+  padding: 0;
+}
+
 .tag {
   position: absolute;
   z-index: var(--z-overlay);

@@ -28,7 +28,21 @@ type Status = "loading" | "ready" | "error" | "unsupported";
  * DOM markers for the seeded weather events. Replaces the Phase 1 CSS
  * placeholder globe.
  */
-export function GlobeMap() {
+export interface GlobeWatchZone {
+  readonly id: string;
+  readonly label: string;
+  readonly latitude: number;
+  readonly longitude: number;
+}
+
+interface GlobeMapProps {
+  /** The signed-in user's own Watch Zones, rendered as plain point markers
+   * (never a drawn radius — see GlobeMap.module.css .watchZoneMarker).
+   * Omitted entirely for signed-out visitors. */
+  watchZones?: readonly GlobeWatchZone[];
+}
+
+export function GlobeMap({ watchZones = [] }: GlobeMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MaplibreMapType | null>(null);
   const [status, setStatus] = useState<Status>("loading");
@@ -39,6 +53,7 @@ export function GlobeMap() {
   // effect below to re-run if the URL changes later.
   const searchParams = useSearchParams();
   const initialEventIdRef = useRef(searchParams.get("event"));
+  const watchZonesRef = useRef(watchZones);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -106,6 +121,14 @@ export function GlobeMap() {
       if (initialEventId) {
         const matched = SEED_EVENTS.find((event) => event.id === initialEventId);
         if (matched) setSelectedEvent(matched);
+      }
+
+      for (const zone of watchZonesRef.current) {
+        const el = document.createElement("span");
+        el.className = styles.watchZoneMarker ?? "";
+        el.setAttribute("role", "img");
+        el.setAttribute("aria-label", `Watch zone: ${zone.label}`);
+        new Marker({ element: el }).setLngLat([zone.longitude, zone.latitude]).addTo(map);
       }
     });
 
