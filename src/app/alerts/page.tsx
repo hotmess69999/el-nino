@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCurrentSession } from "@/lib/auth/session";
 import { listActiveWarnings, listWarningsForWatchZones } from "@/lib/warnings/service";
 import styles from "@/components/alerts/Alerts.module.css";
@@ -29,6 +30,7 @@ export default async function AlertsPage() {
   return (
     <div className={styles.wrap}>
       <h1 className={styles.title}>Alerts</h1>
+      <Link href="/space-weather">Space weather conditions →</Link>
 
       {providerUnavailable && (
         <p className={styles.emptyState} role="alert">
