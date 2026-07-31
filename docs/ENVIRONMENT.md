@@ -7,6 +7,7 @@ it to `.env` for local development and never commit real values.
 |---|---|---|
 | `APP_ENV` | `development` / `staging` / `production` | always |
 | `APP_BASE_URL` | Base URL the app is served from | always |
+| `NEXT_TELEMETRY_DISABLED` | `1` disables Next.js's anonymous telemetry collector | always — set by `scripts/dev.sh`/`dev.ps1` and required by policy (see `docs/dependency-security-log.md`) |
 | `DATABASE_URL` | PostgreSQL connection string | any DB access (Phase 1+) |
 | `REDIS_URL` | Redis connection string | queues, rate limits, realtime coordination (Phase 3+) |
 | `OBJECT_STORAGE_ENDPOINT` | S3-compatible endpoint (MinIO locally) | media upload (Phase 5) |

@@ -5,6 +5,8 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root_dir"
 
+export NEXT_TELEMETRY_DISABLED=1
+
 if command -v docker >/dev/null 2>&1; then
   docker compose up -d
 else

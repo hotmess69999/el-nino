@@ -1,0 +1,72 @@
+[
+  {
+    "name": "react",
+    "version": "19.2.8",
+    "integrity": "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==",
+    "publisher": "fb <opensource+npm@fb.com> / react-bot <react-core@meta.com> (Meta)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found",
+      "static: npm install/postinstall/preinstall hook(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official React package published by Meta's verified npm maintainer accounts (fb / react-core@meta.com). Findings are consistent with normal minified-bundle/build-tooling patterns across the react/react-dom/next dependency tree (npm scans the whole sandbox tree, not per-package), not evidence of compromise. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view react@19.2.8 dist.integrity` and matches this entry."
+  },
+  {
+    "name": "react-dom",
+    "version": "19.2.8",
+    "integrity": "sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==",
+    "publisher": "fb <opensource+npm@fb.com> / react-bot <react-core@meta.com> (Meta)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found",
+      "static: npm install/postinstall/preinstall hook(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official React DOM package published by Meta's verified npm maintainer accounts. Same tree-wide scan findings as react@19.2.8 above; no hard AV/behavioral/supply-chain finding. Registry dist.integrity verified via `npm view react-dom@19.2.8 dist.integrity` and matches this entry.",
+    "note": "react-dom's own package.json declares a 'start: node server.js' script (not an install/postinstall hook) — reviewed, unrelated to installation, not enabled by this approval since scripts remain --ignore-scripts."
+  },
+  {
+    "name": "next",
+    "version": "16.2.12",
+    "integrity": "sha512-iD59eYQWmbFcEbX7v/acG5DRym9iw1DdaPoD0WTA920naWsE25wShzJW4+UvAs8MK9EC2kBfIH6vtto1H1PHGw==",
+    "publisher": "vercel-release-bot <infra+release@vercel.com> (Vercel)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found",
+      "static: npm install/postinstall/preinstall hook(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official Next.js package published by Vercel's verified release bot. The env-var-harvesting and postinstall-hook heuristics plausibly correspond to Next's known telemetry collector and its @next/swc native-binary downloader — both documented, expected Next.js behavior, not hidden exfiltration. Telemetry is disabled for this project via NEXT_TELEMETRY_DISABLED=1 (see .env.example and docs/dependency-security-log.md). No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view next@16.2.12 dist.integrity` and matches this entry.",
+    "note": "next's own package.json declares a 'start: node server.js' script (not an install/postinstall hook) — reviewed, unrelated to installation, not enabled by this approval since scripts remain --ignore-scripts."
+  },
+  {
+    "name": "postcss",
+    "version": "8.5.25",
+    "integrity": "sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==",
+    "publisher": "ai <andrey@sitnik.es> (Andrey Sitnik, PostCSS author)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: hardcoded IP address(es) found"
+    ],
+    "reason": "npm audit flagged next@16.2.12's transitive postcss@8.4.31 for GHSA-qx2v-qp2m-jg93, GHSA-6g55-p6wh-862q, GHSA-r28c-9q8g-f849 (XSS/path-traversal/info-disclosure, all patched in postcss>=8.5.18). Pinned via package.json \"overrides\" to the patched, latest stable release. This is remediation of a real, disclosed CVE — not a heuristic override; approved directly because the fix removes the vulnerability rather than bypassing detection of it. The one heuristic hit traced to the bundled 'semver' dependency's own example strings (e.g. '1.2.3.4' in semver's README/coerce.js), not a real IP."
+  },
+  {
+    "name": "sharp",
+    "version": "0.35.3",
+    "integrity": "sha512-ej0zVHuZGHCiABXcNxeYhpRnPNPAcvbG8RMdBAhDAxLKkCRVSpK3Iyu7qbqw3JMzoj0REeM6f3tJLtVwl0023Q==",
+    "publisher": "lovell <npm@lovell.info> (Lovell Fuller, sharp maintainer)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [],
+    "reason": "npm audit flagged next@16.2.12's optional transitive sharp@0.34.5 for inherited libvips CVEs (CVE-2026-33327/33328/35590/35591), patched in sharp>=0.35.0. Pinned via package.json \"overrides\" to the patched, latest stable release. sharp's install script remains disabled (--ignore-scripts) and its native binary is not built — it is not yet used by this project (see docs/dependency-security-log.md, 'Deferred / not enabled')."
+  }
+]
