@@ -19,6 +19,10 @@ export const auth = betterAuth({
       username: { type: "string", required: true, input: true },
       bio: { type: "string", required: false, input: true },
       verificationType: { type: "string", required: false, input: false, defaultValue: "none" },
+      // Access-control field — never settable through the public sign-up/
+      // update-user API surface (input: false). See prisma/schema.prisma's
+      // UserRole comment.
+      role: { type: "string", required: false, input: false, defaultValue: "user" },
       weatherScore: { type: "number", required: false, input: false, defaultValue: 0 },
     },
   },

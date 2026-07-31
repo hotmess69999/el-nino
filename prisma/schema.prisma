@@ -24,6 +24,15 @@ enum VerificationType {
   media
 }
 
+// Section 16 — admin routes/actions are permission-checked against this,
+// never against verificationType (a public trust badge, not an access
+// grant — the two are deliberately separate fields).
+enum UserRole {
+  user
+  moderator
+  admin
+}
+
 model User {
   id               String           @id @default(cuid())
   email            String           @unique
@@ -33,17 +42,20 @@ model User {
   image            String?
   bio              String?
   verificationType VerificationType @default(none)
+  role             UserRole         @default(user)
   weatherScore     Int              @default(0)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
-  accounts    Account[]
-  sessions    Session[]
-  watchZones  WatchZone[]
-  preferences UserPreference?
-  reports     Report[]
-  following   Follow[]        @relation("Follower")
-  followers   Follow[]        @relation("Followed")
+  accounts         Account[]
+  sessions         Session[]
+  watchZones       WatchZone[]
+  preferences      UserPreference?
+  reports          Report[]
+  moderationReports ModerationReport[] @relation("Reporter")
+  moderationActions ModerationReport[] @relation("Reviewer")
+  following        Follow[]           @relation("Follower")
+  followers        Follow[]           @relation("Followed")
 
   @@index([username])
 }
@@ -169,7 +181,8 @@ model Report {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  media MediaAsset[]
+  media             MediaAsset[]
+  moderationReports ModerationReport[]
 
   @@index([contributorId])
   @@index([status])
@@ -219,4 +232,44 @@ model OfficialWarning {
 
   @@unique([providerId, providerWarningId])
   @@index([expiresAt])
+}
+
+enum ModerationReportStatus {
+  open
+  actioned
+  dismissed
+}
+
+enum ModerationReportReason {
+  off_topic
+  false_context
+  manipulated_media
+  unsafe_personal_information
+  harassment
+  copyright
+  illegal_content
+  other
+}
+
+// Phase 8 — reports flag a Report (the weather-video content model, Phase 5)
+// for moderator review. Only moderator/admin roles may list/action these
+// (enforced server-side in src/lib/moderation/service.ts, never by hiding
+// the /admin/moderation route alone).
+model ModerationReport {
+  id           String                  @id @default(cuid())
+  reporterId   String
+  reporter     User                    @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetReportId String
+  target       Report                  @relation(fields: [targetReportId], references: [id], onDelete: Cascade)
+  reason       ModerationReportReason
+  note         String?
+  status       ModerationReportStatus  @default(open)
+  reviewerId   String?
+  reviewer     User?                   @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewNote   String?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  @@index([status])
+  @@index([targetReportId])
 }
