@@ -200,5 +200,35 @@
       "static: possible env-var harvesting (env access + outbound network call in same file)"
     ],
     "reason": "Official Prisma client runtime package, same publisher account as prisma above, scanned in the same batch — see the prisma@7.9.1 entry for full per-finding detail (the WASM query-compiler base64 blobs and DATABASE_URL/network access are @prisma/client's own runtime, described there). No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view @prisma/client@7.9.1 dist.integrity`."
+  },
+  {
+    "name": "vitest",
+    "version": "4.1.10",
+    "integrity": "sha512-R9jUTe5S4Qb0HCd4TNqpC7oGcrMssMRGXLW80ubjWsW9VH5GF8y1Y0SFLY9AbqSk6nt0PnOx4H4WNJYZ13GUPw==",
+    "publisher": "ariperkkio / antfu / hiogawa / oreanno / yyx990803 (Evan You, Vue/Vite/Vitest core team)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: eval() call(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official Vitest package, published by its well-known core team (including Vue/Vite creator Evan You). Scanned in the same batch as @playwright/test (below). base64/IP hits are version-number-shaped and spec-section-shaped strings inside vitest's own minified test-runner bundle (dist/chunks/test.*.js) and a WASM-adjacent utility bundle, not real payloads or hosts. eval() hits traced to vite's own dev-tooling bundler chunk (dist/node/chunks/node.js), a legitimate build-tool code path, not vitest's test logic. env-var-harvest hits are vite's dev-server config (reads env vars, opens a local network server) and vitest's CLI/watch-mode tooling reading config/env — expected for a dev server and test runner. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view vitest@4.1.10 dist.integrity`."
+  },
+  {
+    "name": "@playwright/test",
+    "version": "1.62.1",
+    "integrity": "sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==",
+    "publisher": "playwright-bot <playwright-npm-bot@microsoft.com> / pavelfeldman / yurys / dgozman-ms (Microsoft, Playwright team)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official Playwright test-runner package published by Microsoft's verified Playwright release bot. base64/IP hits trace to playwright-core's bundled Chrome DevTools Protocol type definitions (protocol.d.ts version-shaped numbers) and its own minified coreBundle.js. The suspicious-URL hits are playwright-core launching a localhost debug/inspector server (http://127.0.0.1:${address.port}) and vite's own dev-server type docs (http://127.0.0.1:8080 example) — both expected local-only addresses, not external callbacks. eval() hits are overwhelmingly Playwright's own `.$eval()`/`.$$eval()` public DOM-evaluation API method names (a Puppeteer/Playwright naming convention, matched by the heuristic's substring search — not the dangerous eval() function), plus one legitimate dynamic-import-fallback use in vite's bundled chunk and one in an ESM-transform loader. env-var-harvest hits are playwright-core's browser-binary download/proxy configuration (reads PLAYWRIGHT_* env vars, downloads browser binaries over the network — exactly what a browser-automation tool needs to do) and vite's dev-server config, same as vitest above. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view @playwright/test@1.62.1 dist.integrity`.",
+    "note": "@playwright/test does not itself download browser binaries at install time in this scan (no install hook was flagged) — browser binaries are fetched separately via `npx playwright install`, which is NOT run by this install and must be reviewed/run as its own explicit step before end-to-end tests can execute."
   }
 ]

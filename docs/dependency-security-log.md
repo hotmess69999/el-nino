@@ -228,6 +228,45 @@ typecheck` (0 errors, now against `typescript@5.9.3`), and `npx prettier
   that's Phase 1+ application work, not Phase 0 tooling installation).
   `npx prisma generate`/`migrate` will be exercised once a schema exists.
 
+### `vitest@4.1.10` (dev), `@playwright/test@1.62.1` (dev)
+
+- **Publishers:** `vitest` — its well-known core team, including
+  `yyx990803` (Evan You, creator of Vue/Vite/Vitest). `@playwright/test` —
+  `playwright-bot <playwright-npm-bot@microsoft.com>` (Microsoft's official
+  Playwright release account).
+- **Approved:** 2026-07-31
+- **Triggered heuristics:** base64/IP hits traced to version-number- and
+  Chrome-DevTools-Protocol-spec-shaped strings inside vitest's and
+  playwright-core's own minified bundles. The eval() hits were almost
+  entirely Playwright's own `.$eval()`/`.$$eval()` public DOM-evaluation API
+  method names (a Puppeteer/Playwright naming convention that happens to
+  contain the substring "eval(" — not the dangerous `eval()` function),
+  plus one legitimate dynamic-import fallback in vite's own bundled chunk.
+  URL hits were playwright-core launching a localhost debug/inspector
+  server and vite's dev-server type docs — both local-only addresses.
+  Env-var-harvest hits were playwright-core's browser-binary download/proxy
+  configuration (reads `PLAYWRIGHT_*` env vars, downloads browser binaries
+  — exactly what a browser-automation tool needs to do) and vite's
+  dev-server config.
+- **Reason for approval:** every finding traced to a legitimate,
+  well-understood pattern in first-party code from verified official
+  publishers. No ClamAV/GuardDog/Socket hard finding for either package.
+  Both `dist.integrity` values re-verified live at install time.
+- **Correction after install:** both moved to `devDependencies` (test
+  tooling, not runtime app dependencies). Lockfile reconciled with a bare
+  `npm install --ignore-scripts`.
+- **Not yet done:** `@playwright/test` does **not** download browser
+  binaries at install time (no install hook was flagged in the scan) —
+  that happens via a separate `npx playwright install` command, which was
+  **not** run. Browser binaries must be fetched as their own explicitly
+  reviewed step before any end-to-end test can actually execute.
+- **Post-install verification:** `npm audit` — 0 vulnerabilities (284
+  packages total). `npm run lint` and `npm run typecheck` pass cleanly.
+  `npx vitest run` correctly resolves and executes, exiting with "no test
+  files found" (expected — no tests exist yet in this Phase 0 scaffold).
+  `npx playwright --version` reports `1.62.1` without needing any browser
+  binary.
+
 ## Telemetry
 
 `NEXT_TELEMETRY_DISABLED=1` is set in `.env.example` and exported by
