@@ -1,0 +1,121 @@
+/*
+ * El Niño design tokens.
+ * Dark, restrained, weather-first — see specs/El_Nino_FULL_MASTER_Production_Prompt.md
+ * section 5 for the approved direction and docs/DESIGN_SYSTEM.md for usage rules.
+ * Do not introduce a one-off colour/spacing/radius value when a token exists here.
+ */
+
+:root {
+  /* Colour — surfaces */
+  --color-canvas: #0a0d12;
+  --color-surface: #11151c;
+  --color-raised: #171c25;
+  --color-divider: #262c37;
+
+  /* Colour — text */
+  --color-text: #eef1f6;
+  --color-text-muted: #9aa4b2;
+  --color-text-disabled: #5b6472;
+
+  /* Colour — action & accents */
+  --color-action: #4da3ff;
+  --color-action-hover: #6db4ff;
+  --color-teal: #2dd4bf;
+  --color-warning: #f5a524;
+  --color-critical: #f0453a;
+  --color-success: #2fbf71;
+
+  /* Colour — map overlays (translucent, for use over imagery/map surfaces) */
+  --color-overlay-scrim: rgb(6 9 13 / 65%);
+  --color-overlay-panel: rgb(17 21 28 / 92%);
+
+  /* Colour — lighter surfaces for sustained reading (settings, admin, long text) */
+  --color-canvas-light: #f5f6f8;
+  --color-surface-light: #ffffff;
+  --color-text-light: #14181f;
+  --color-text-light-muted: #545c68;
+  --color-divider-light: #dfe3e8;
+
+  /* Typography */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-numeric: var(--font-sans);
+
+  --text-display-size: 2.5rem;
+  --text-display-weight: 600;
+  --text-display-line: 1.1;
+
+  --text-title-size: 1.5rem;
+  --text-title-weight: 600;
+  --text-title-line: 1.25;
+
+  --text-heading-size: 1.125rem;
+  --text-heading-weight: 600;
+  --text-heading-line: 1.3;
+
+  --text-body-size: 1rem;
+  --text-body-weight: 400;
+  --text-body-line: 1.5;
+
+  --text-label-size: 0.875rem;
+  --text-label-weight: 500;
+  --text-label-line: 1.3;
+
+  --text-caption-size: 0.75rem;
+  --text-caption-weight: 400;
+  --text-caption-line: 1.35;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-0: 0px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Elevation (dark surfaces: contrast/border first, shadow second and subtle) */
+  --elevation-flat: none;
+  --elevation-overlay: 0 4px 16px rgb(0 0 0 / 40%);
+  --elevation-modal: 0 12px 32px rgb(0 0 0 / 55%);
+
+  /* Motion */
+  --motion-instant: 0ms;
+  --motion-fast: 120ms;
+  --motion-standard: 220ms;
+  --motion-map: 500ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Breakpoints (referenced in docs/media queries; also mirrored in src/lib/tokens.ts) */
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
+  /* Layout */
+  --nav-height-mobile: 64px;
+  --nav-width-desktop: 88px;
+  --content-max-width: 1200px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Z-index layers */
+  --z-base: 0;
+  --z-nav: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant: 0ms;
+    --motion-fast: 0ms;
+    --motion-standard: 0ms;
+    --motion-map: 0ms;
+  }
+}

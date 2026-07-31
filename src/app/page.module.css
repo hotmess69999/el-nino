@@ -1,0 +1,123 @@
+.screen {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-4);
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, var(--color-surface) 0%, var(--color-canvas) 70%);
+}
+
+.globe {
+  position: relative;
+  width: min(62vw, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, rgb(77 163 255 / 35%), transparent 55%),
+    radial-gradient(circle at 65% 70%, rgb(45 212 191 / 25%), transparent 55%), var(--color-raised);
+  box-shadow:
+    0 0 0 1px var(--color-divider),
+    var(--elevation-overlay);
+  overflow: hidden;
+}
+
+.globeGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgb(154 164 178 / 18%) 0,
+      rgb(154 164 178 / 18%) 1px,
+      transparent 1px,
+      transparent 12.5%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(154 164 178 / 12%) 0,
+      rgb(154 164 178 / 12%) 1px,
+      transparent 1px,
+      transparent 16.6%
+    );
+  border-radius: 50%;
+  animation: rotate 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .globeGrid {
+    animation: none;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-action);
+  box-shadow: 0 0 0 4px rgb(77 163 255 / 25%);
+}
+
+.markerOne {
+  top: 32%;
+  left: 60%;
+}
+
+.markerTwo {
+  top: 58%;
+  left: 32%;
+  background: var(--color-teal);
+  box-shadow: 0 0 0 4px rgb(45 212 191 / 25%);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  max-width: 40ch;
+}
+
+.title {
+  font-family: var(--font-sans);
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  line-height: var(--text-title-line);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-divider);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label-weight);
+}

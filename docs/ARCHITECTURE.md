@@ -1,4 +1,4 @@
-# Architecture (Phase 0 baseline)
+# Architecture
 
 ## Status
 
@@ -16,9 +16,10 @@ summarises, and section 27 for the phased delivery plan this project follows.
 
 ## Target shape (per the master prompt)
 
-- **Web app**: React (Vite) or Next.js — decision deferred to Phase 1, to be recorded
-  as an ADR (see spec section 18). Globe-first UI (MapLibre + a WebGL globe layer),
-  TikTok-style vertical video feed.
+- **Web app**: Next.js (App Router) — decided in
+  [ADR 0001](./decisions/0001-frontend-framework.md). Globe-first UI (MapLibre + a
+  WebGL globe layer, not yet added — see Phase 1 checkpoint), TikTok-style vertical
+  video feed (Phase 3).
 - **Realtime**: Socket.io (or similar) for active-event updates, warning issue/
   update/cancel/expiry, upload progress, comments, admin queues — durable state stays
   in Postgres; clients recover via cursor refetch, not an assumption nothing was
@@ -39,28 +40,44 @@ summarises, and section 27 for the phased delivery plan this project follows.
   consent, retention, and data-classification rules are defined.
 - **CI/CD**: GitHub Actions, one dependency updater (Dependabot or Renovate).
 
-## Open decisions (need a call before Phase 1)
+## Decisions made
 
-- React+Vite vs Next.js for the frontend
-- Prisma vs Drizzle
-- Better Auth vs Clerk
+- Frontend framework: Next.js — [ADR 0001](./decisions/0001-frontend-framework.md)
+- ORM: Prisma — [ADR 0002](./decisions/0002-orm-choice.md)
+- Auth: Better Auth — [ADR 0003](./decisions/0003-auth-provider.md)
+
+## Open decisions
+
 - Monorepo layout (single app vs. apps/ + packages/ workspace) once native
   mobile/desktop clients and public APIs come into scope
 - First warning provider to integrate for Phase 6
 
-## Repository layout (current)
+## Repository layout (current, end of Phase 1)
 
 ```
 el-nino/
-├── docs/            # architecture, migration, setup docs (this Phase 0 output)
-├── specs/           # transcribed product/master-prompt specs
+├── docs/                    # architecture, design system, checkpoints, ADRs
+├── specs/                   # master-prompt specs (authoritative + superseded draft)
+├── security/                # dependency install allowlist (see docs/dependency-security-log.md)
+├── scripts/                 # setup/dev/verify/reset scripts (Phase 0)
+├── e2e/                     # Playwright specs (not yet run — see Phase 1 checkpoint)
 ├── src/
-│   ├── app/         # Next.js app router routes (empty scaffold)
-│   ├── components/  # shared UI components
-│   ├── features/    # feature modules (globe, feed, watch-zones, ...)
-│   ├── lib/         # shared utilities
-│   └── server/      # server-only code (db, queues, socket handlers)
-├── docker-compose.yml  # local Postgres + Redis
+│   ├── app/                 # Next.js App Router routes
+│   │   ├── layout.tsx       # root layout: skip link, nav shell, main landmark
+│   │   ├── page.tsx         # Globe home (placeholder visual — MapLibre is Phase 2)
+│   │   ├── feed/            # placeholder — Phase 3
+│   │   ├── upload/          # placeholder — Phase 5
+│   │   ├── alerts/          # placeholder — Phase 6
+│   │   └── profile/         # placeholder — Phase 4
+│   ├── components/
+│   │   ├── nav/             # NavShell (single responsive landmark) + icon set
+│   │   └── shared/           # PlaceholderScreen (honest "not built yet" surface)
+│   ├── lib/                 # navigation.ts, tokens.ts (+ their unit tests)
+│   └── styles/               # tokens.css (design-token source of truth)
+├── docker-compose.yml        # local Postgres + Redis
 ├── package.json
-└── tsconfig.json
+├── tsconfig.json
+├── next.config.mjs
+├── vitest.config.ts
+└── playwright.config.ts
 ```
