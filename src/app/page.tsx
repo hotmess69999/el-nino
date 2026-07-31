@@ -5,7 +5,11 @@ import { listWatchZones } from "@/lib/watchZones/service";
 
 export default async function GlobeHomePage() {
   const session = await getCurrentSession();
-  const zones = session ? await listWatchZones(session.user.id) : [];
+  // Watch Zone markers are a personalisation layer, not core map data — a
+  // DB failure here must not take the globe down (section 23).
+  const zones = session
+    ? await listWatchZones(session.user.id).catch(() => [])
+    : [];
 
   return (
     <Suspense fallback={null}>
