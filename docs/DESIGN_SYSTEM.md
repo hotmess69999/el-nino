@@ -65,13 +65,19 @@ replacing Phase 1's CSS placeholder. Key rules established here:
 
 - **No live tile provider or API key.** `src/lib/map/config.ts` builds a
   self-contained MapLibre style: a `--color-canvas`-coloured background layer
-  plus a lat/lon graticule (`src/lib/map/graticule.ts`, pure/deterministic,
-  no network access), added via `map.addSource`/`addLayer` after `load`
-  rather than in the initial style object (a GeoJSON source in the initial
-  style hung MapLibre's style loading in this project's bundler setup — see
-  `docs/dependency-security-log.md`). When a real basemap/tile vendor is
-  chosen, it replaces this function's contents; nothing else should need to
-  change.
+  plus a lat/lon graticule, added via `map.addSource`/`addLayer` after `load`.
+  The graticule is a pre-rendered PNG (`public/map/graticule.png`, built by
+  `scripts/generate-graticule-image.mjs`) loaded as an `image` source, **not**
+  a GeoJSON source — GeoJSON sources never finish loading in this project's
+  Next.js/Turbopack bundler setup (confirmed Phase 3 with a trivial
+  single-point source; the vector-tile worker never completes, with no
+  thrown error). `src/lib/map/graticule.ts` still has the equivalent pure
+  GeoJSON generator, kept for if/when that bundler issue is resolved. When a
+  real basemap/tile vendor is chosen, it replaces `buildMapStyle()`'s
+  contents; nothing else should need to change. Line colour/opacity
+  (`#4a5568` at 0.85) was tuned in Phase 3 to be visibly present but
+  restrained — the original value (`#262c37` at 0.6, the divider token) was
+  essentially invisible against the canvas.
 - **Markers are real DOM `<button>` elements** (via `maplibregl.Marker`
   with a custom HTML element), not a canvas-rendered symbol layer — this is
   what makes them keyboard-focusable and screen-reader-accessible with a
@@ -100,6 +106,48 @@ replacing Phase 1's CSS placeholder. Key rules established here:
   auto-rotating globe, the real map only moves in response to user
   interaction (drag/zoom/keyboard) — nothing to gate behind
   `prefers-reduced-motion` because there's no ambient motion to begin with.
+
+## Vertical feed (Phase 3)
+
+`src/components/feed/FeedScreen.tsx` renders the vertical weather-video
+feed, replacing Phase 1's placeholder. Key rules established here:
+
+- **CSS scroll-snap, not a carousel library.** One `role="region"
+aria-label="Weather report feed"` container with `scroll-snap-type: y
+mandatory`; each report is a full-bleed card with `scroll-snap-align:
+start`. Keyboard `ArrowUp`/`ArrowDown` call `scrollIntoView` on the
+  target card — no JS-driven virtual scrolling.
+- **Only the visible report's video plays.** An `IntersectionObserver`
+  (threshold 0.6) drives a single `activeIndex`; every other `<video>` is
+  paused. Adjacent videos (`|index - activeIndex| <= 1`) get
+  `preload="auto"`, everything else `preload="none"` — bounded resource use
+  as the report count grows.
+- **Same seed events as the globe.** `src/lib/feed/reports.ts` maps
+  `SEED_EVENTS` (`src/lib/map/seedEvents.ts`) 1:1 to `FeedReport`s (video
+  fixture path, contributor handle, caption) — one dataset, two
+  presentations. "View on globe" (`/?event=<id>`) is what closes the loop:
+  `GlobeMap` reads that query param on mount and auto-opens the matching
+  event's preview.
+- **Media is generated, not blank.** `public/media/<category>.mp4` — six
+  short ffmpeg-generated clips (`gradients` + `noise` lavfi filters, tinted
+  per category), regenerate via the command in `public/media/README.md`.
+  Clearly labelled in the UI ("Generated media — not real footage") and
+  replace before this ships — see the Phase 3 checkpoint.
+- **Overlay hierarchy is fixed and minimal**, top to bottom: full-bleed
+  video → location + category badge (top) → verification badge (top-right)
+  → contributor + caption + "View on globe" (bottom) → mute + globe-link
+  controls (bottom-right, two 44px circular buttons). Scrims are
+  `linear-gradient` fades at top/bottom only (`rgb(6 9 13 / 55-65%)` →
+  transparent) — never a full-card tint, never glassmorphism.
+- **The bottom scrim spans the full card width** (not just the text
+  column) so it doesn't visibly cut off behind the side controls — only the
+  text content is inset (`padding-right: 112px`) to avoid overlapping the
+  buttons. (A real Phase 3 bug: the scrim originally stopped at `right:
+96px`, leaving a visible rectangular seam behind the controls.)
+- **No native video controls, two custom ones.** Tap/click the video to
+  toggle play/pause (shows a centred ▶ overlay when paused); a dedicated
+  mute/unmute button. No progress bar, no volume slider, no oversized
+  control cluster.
 
 ## Accessibility baseline established in Phase 1
 

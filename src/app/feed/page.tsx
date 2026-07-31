@@ -1,11 +1,5 @@
-import { PlaceholderScreen } from "@/components/shared/PlaceholderScreen";
+import { FeedScreen } from "@/components/feed/FeedScreen";
 
 export default function FeedPage() {
-  return (
-    <PlaceholderScreen
-      title="Feed"
-      description="The vertical weather-video feed — For You, Nearby, Following, event, and place scopes — with virtualised playback and trust labels."
-      phase="Phase 3 (Vertical feed and playback)"
-    />
-  );
+  return <FeedScreen />;
 }

@@ -3,16 +3,18 @@
 import { Map as MaplibreMap, Marker, NavigationControl } from "maplibre-gl";
 import type { ErrorEvent, Map as MaplibreMapType } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_META } from "@/lib/map/categories";
 import {
+  GRATICULE_IMAGE_COORDINATES,
+  GRATICULE_IMAGE_URL,
   GRATICULE_LAYER_ID,
   GRATICULE_SOURCE_ID,
   MAP_CONFIG,
   buildMapStyle,
 } from "@/lib/map/config";
 import type { WeatherEvent } from "@/lib/map/events";
-import { buildGraticule } from "@/lib/map/graticule";
 import { SEED_EVENTS } from "@/lib/map/seedEvents";
 import { isWebglSupported } from "@/lib/map/webgl";
 import { EventPreview } from "./EventPreview";
@@ -31,6 +33,12 @@ export function GlobeMap() {
   const mapRef = useRef<MaplibreMapType | null>(null);
   const [status, setStatus] = useState<Status>("loading");
   const [selectedEvent, setSelectedEvent] = useState<WeatherEvent | null>(null);
+  // Feed-to-globe continuity: /?event=<id> (from a feed report's "View on
+  // globe" link) auto-opens that event's preview once markers exist.
+  // Captured once at mount into a ref so it doesn't force the map-creation
+  // effect below to re-run if the URL changes later.
+  const searchParams = useSearchParams();
+  const initialEventIdRef = useRef(searchParams.get("event"));
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -62,15 +70,22 @@ export function GlobeMap() {
       // immediately after construction — MapLibre throws otherwise.
       map.setProjection({ type: "globe" });
 
-      // Added after load, not in the initial style object — a GeoJSON
-      // source declared upfront hung MapLibre's style-loading step in this
-      // project's bundler/worker setup (see src/lib/map/config.ts).
-      map.addSource(GRATICULE_SOURCE_ID, { type: "geojson", data: buildGraticule(30) });
+      // Pre-rendered raster texture, not a GeoJSON source — GeoJSON
+      // sources never finish loading in this project's Next.js/Turbopack
+      // bundler setup (confirmed with a trivial single-point source; the
+      // vector-tile worker never completes). An `image` source decodes on
+      // the main thread and sidesteps that entirely. See
+      // src/lib/map/config.ts and docs/dependency-security-log.md.
+      map.addSource(GRATICULE_SOURCE_ID, {
+        type: "image",
+        url: GRATICULE_IMAGE_URL,
+        coordinates: GRATICULE_IMAGE_COORDINATES,
+      });
       map.addLayer({
         id: GRATICULE_LAYER_ID,
-        type: "line",
+        type: "raster",
         source: GRATICULE_SOURCE_ID,
-        paint: { "line-color": "#262c37", "line-width": 1, "line-opacity": 0.6 },
+        paint: { "raster-opacity": 0.85 },
       });
 
       setStatus("ready");
@@ -85,6 +100,12 @@ export function GlobeMap() {
         el.addEventListener("click", () => setSelectedEvent(event));
 
         new Marker({ element: el }).setLngLat([event.longitude, event.latitude]).addTo(map);
+      }
+
+      const initialEventId = initialEventIdRef.current;
+      if (initialEventId) {
+        const matched = SEED_EVENTS.find((event) => event.id === initialEventId);
+        if (matched) setSelectedEvent(matched);
       }
     });
 
