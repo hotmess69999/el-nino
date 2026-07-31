@@ -25,12 +25,16 @@ grant — see `docs/SECURITY.md`). `ModerationReport` model + service
 every request and action (not just route-gated), `notFound()` for unauthorised
 access rather than a 403.
 
-**Known gap, not silently omitted**: there is no "Report" button in the
-consumer feed UI yet to actually file a `ModerationReport` — the feed still only
-renders seed events (`src/lib/feed/reports.ts`), not the DB-backed `Report`
-model from Phase 5. The service/action layer is complete and tested; wiring a
-report-filing control into the feed UI is the next piece, not done here to keep
-this batch bounded.
+**Closed in a follow-up commit** (`028d363`): the feed now has a Report control
+(`src/components/feed/ReportButton.tsx`) with an inline reason picker.
+`prisma/seed.ts` seeds one real DB `Report` row per feed seed event
+(`seed-report-<eventId>`) so the button has a genuine foreign-key target
+instead of a dangling seed-event id — `src/lib/feed/reports.ts`'s new
+`reportId` field carries that mapping. Splitting `MODERATION_REASONS` into a
+pure `src/lib/moderation/reasons.ts` (no Prisma import) was required after the
+client bundle build initially failed pulling `node:module` in via
+`service.ts` → `db/client.ts` → `pg` — same fix pattern already used for
+`warnings/matching.ts` and `moderation/roles.ts`.
 
 ## Phase 9 — Hardening (partial — see gaps below)
 
