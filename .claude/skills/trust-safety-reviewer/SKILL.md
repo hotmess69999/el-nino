@@ -25,7 +25,7 @@ confidence states are clear and misinformation is correctable quickly.
 
 1. Verify the confidence-state vocabulary is used consistently: Official, Verified,
    Likely, Unconfirmed, Disputed, False/Removed — each with a published definition.
-2. Verify automated systems only *suggest* a state, never claim official status.
+2. Verify automated systems only _suggest_ a state, never claim official status.
 3. Verify report reasons are specific: off-topic, false context, generated/
    manipulated media, unsafe personal information, harassment, copyright, illegal
    content, other.

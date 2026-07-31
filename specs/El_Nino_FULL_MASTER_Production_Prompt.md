@@ -25,6 +25,7 @@ warnings without a separate disaster mode.
 ## Contents
 
 - Part I — Skills, tools and setup
+
 1. Master operating instruction
 2. Existing application audit and preservation
 3. Product vision and boundaries
@@ -55,6 +56,7 @@ warnings without a separate disaster mode.
 28. Documentation and handover
 29. Definition of done
 30. Final Claude Code execution block
+
 - Appendix A — Initial route map
 - Appendix B — Initial environment variables
 - Appendix C — Production checklist
@@ -88,7 +90,7 @@ not leave them only in terminal output.
   keep, refactor, replace, defer, remove decisions with evidence.
 - **product-guardian** — checks every proposed feature against the weather-only
   boundary, the no-disaster-mode rule, localised warnings, and the approved Concept 3
-  + Concept 6 design direction.
+  - Concept 6 design direction.
 - **ui-consistency-reviewer** — enforces typography, spacing, colour, icon, motion,
   layout and responsive rules; rejects generic AI-dashboard patterns.
 - **map-geospatial-engineer** — owns MapLibre integration, globe/map interaction,
@@ -188,7 +190,7 @@ test; create deterministic seed accounts/events/warnings/videos; write
 
 Lead product architect, design-system owner, senior full-stack engineer, geospatial
 engineer, media-platform engineer, security reviewer and delivery manager for El Niño.
-Redesign and extend the *existing* application — not a greenfield demo (see status
+Redesign and extend the _existing_ application — not a greenfield demo (see status
 note above for this project's actual state).
 
 **Non-negotiable:** Never discard the existing application merely because starting
@@ -217,8 +219,8 @@ and user-facing URLs where practical.
 
 ## 2. Existing application audit and preservation
 
-*(N/A for this project — no prior codebase found. If one surfaces, run this section in
-full before further product work.)*
+_(N/A for this project — no prior codebase found. If one surfaces, run this section in
+full before further product work.)_
 
 Required before product work: identify frontend/backend stack, map user journeys, run
 the app and capture screenshots (desktop + mobile), run existing tests/build/lint and
@@ -226,6 +228,7 @@ record failures honestly, identify performance/security/design-consistency issue
 identify data-migration risk.
 
 Audit outputs (when applicable):
+
 ```
 docs/audit/EXECUTIVE_SUMMARY.md
 docs/audit/REPOSITORY_MAP.md
@@ -321,13 +324,13 @@ Mobile nav: **Globe, Feed, Upload, Alerts, Profile**. Discover and Search reache
 headers, not extra nav slots. Same destinations on desktop (rail or top bar),
 consistent labels/order.
 
-| Destination | Purpose |
-|---|---|
-| Globe | Default discovery surface: activity, clusters, layers, search |
-| Feed | Vertical weather-video feed (location/zones/activity/preferences) |
-| Upload | Primary contribution action |
-| Alerts | Official localised warnings, Watch Zone warnings, notification history (community posts never appear as official alerts) |
-| Profile | Identity, contributions, saved content, Watch Zones, preferences, privacy, account settings |
+| Destination | Purpose                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Globe       | Default discovery surface: activity, clusters, layers, search                                                            |
+| Feed        | Vertical weather-video feed (location/zones/activity/preferences)                                                        |
+| Upload      | Primary contribution action                                                                                              |
+| Alerts      | Official localised warnings, Watch Zone warnings, notification history (community posts never appear as official alerts) |
+| Profile     | Identity, contributions, saved content, Watch Zones, preferences, privacy, account settings                              |
 
 Rules: preserve globe view/feed position/active event across tabs; deep links open
 specific content with an obvious route back; predictable back behaviour; auth gates
@@ -713,18 +716,18 @@ Implement in usable vertical slices — no weeks of infra with no working user p
 Each phase ends with a demonstrable build, tests, documentation, and a written
 comparison against acceptance criteria.
 
-| Phase | Required outcome |
-|---|---|
-| 0 — Audit and baseline | Skills created; original app inspected/run; evidence captured; keep/refactor/replace matrix; reversible branch + environment |
-| 1 — Design system & nav shell | Tokens, responsive shell, navigation, common states, Concept 3+6 visual foundation, existing routes preserved where possible |
-| 2 — Globe, map & event read experience | Globe, flat-map fallback, viewport API, clusters, event preview/page, official layer attribution (real or labelled dev data) |
-| 3 — Vertical feed & playback | Virtualised feed, media variants, captions, controls, data saver, event/place scopes, trust labels |
-| 4 — Auth, profiles & Watch Zones | Accounts, profiles, follows, private zones, preferences, personalised globe/feed reasons |
-| 5 — Upload & media pipeline | Resumable upload, metadata review, location privacy, transcoding, processing states, contributor rights controls |
-| 6 — Localised warnings | One reliable warning provider via adapter layer, matching, Alerts UI, map polygons, configurable pushes, expiry/cancellation |
-| 7 — Space weather | Sourced conditions/events/explanations, globe layers, zone preferences |
-| 8 — Trust, moderation & admin | Reports, confidence states, queues, corrections, event merge/split, badge verification, audit logs |
-| 9 — Hardening & production launch | Accessibility, security, performance, provider failure, backups, observability, runbooks, privacy review, production checklist |
+| Phase                                  | Required outcome                                                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 0 — Audit and baseline                 | Skills created; original app inspected/run; evidence captured; keep/refactor/replace matrix; reversible branch + environment   |
+| 1 — Design system & nav shell          | Tokens, responsive shell, navigation, common states, Concept 3+6 visual foundation, existing routes preserved where possible   |
+| 2 — Globe, map & event read experience | Globe, flat-map fallback, viewport API, clusters, event preview/page, official layer attribution (real or labelled dev data)   |
+| 3 — Vertical feed & playback           | Virtualised feed, media variants, captions, controls, data saver, event/place scopes, trust labels                             |
+| 4 — Auth, profiles & Watch Zones       | Accounts, profiles, follows, private zones, preferences, personalised globe/feed reasons                                       |
+| 5 — Upload & media pipeline            | Resumable upload, metadata review, location privacy, transcoding, processing states, contributor rights controls               |
+| 6 — Localised warnings                 | One reliable warning provider via adapter layer, matching, Alerts UI, map polygons, configurable pushes, expiry/cancellation   |
+| 7 — Space weather                      | Sourced conditions/events/explanations, globe layers, zone preferences                                                         |
+| 8 — Trust, moderation & admin          | Reports, confidence states, queues, corrections, event merge/split, badge verification, audit logs                             |
+| 9 — Hardening & production launch      | Accessibility, security, performance, provider failure, backups, observability, runbooks, privacy review, production checklist |
 
 **Checkpoint report** — `docs/checkpoints/PHASE-N.md`: scope completed; existing code
 reused; code refactored/replaced and why; screens/routes delivered; DB/API changes;
@@ -828,25 +831,25 @@ skill files, setup verification and migration plan are complete.
 
 ## Appendix A — Initial route map
 
-| Route | Purpose |
-|---|---|
-| `/` | Globe home and active event discovery |
-| `/feed` | Vertical weather-video feed |
-| `/discover` | Active events and curated discovery |
-| `/search` | Places, events, weather types and users |
-| `/upload` | Capture, selection and upload workflow |
-| `/events/:eventSlug` | Event summary, timeline, map, warnings and media |
-| `/places/:placeSlug` | Place-centred conditions, events and uploads |
-| `/alerts` | Localised official warnings and history |
-| `/space-weather` | Space-weather conditions and events |
-| `/watch-zones` | Private followed locations and preferences |
-| `/users/:handle` | Public profile |
-| `/settings` | Account, playback, privacy, notifications and data |
-| `/admin` | Protected operations overview |
-| `/admin/moderation` | Reports and cases |
-| `/admin/events` | Event management |
-| `/admin/providers` | Provider health and ingestion |
-| `/admin/users` | Users, roles and badges |
+| Route                | Purpose                                            |
+| -------------------- | -------------------------------------------------- |
+| `/`                  | Globe home and active event discovery              |
+| `/feed`              | Vertical weather-video feed                        |
+| `/discover`          | Active events and curated discovery                |
+| `/search`            | Places, events, weather types and users            |
+| `/upload`            | Capture, selection and upload workflow             |
+| `/events/:eventSlug` | Event summary, timeline, map, warnings and media   |
+| `/places/:placeSlug` | Place-centred conditions, events and uploads       |
+| `/alerts`            | Localised official warnings and history            |
+| `/space-weather`     | Space-weather conditions and events                |
+| `/watch-zones`       | Private followed locations and preferences         |
+| `/users/:handle`     | Public profile                                     |
+| `/settings`          | Account, playback, privacy, notifications and data |
+| `/admin`             | Protected operations overview                      |
+| `/admin/moderation`  | Reports and cases                                  |
+| `/admin/events`      | Event management                                   |
+| `/admin/providers`   | Provider health and ingestion                      |
+| `/admin/users`       | Users, roles and badges                            |
 
 ## Appendix B — Initial environment variables
 

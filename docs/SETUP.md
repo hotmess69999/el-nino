@@ -2,18 +2,18 @@
 
 Verified on this machine on 2026-07-31 (Windows 11, Git Bash):
 
-| Tool | Status | Version | Notes |
-|---|---|---|---|
-| Node.js | ✅ installed | v24.16.0 | Newer than LTS; fine for now, pin to LTS in CI later |
-| npm | ✅ installed | 11.17.0 | |
-| pnpm | ⚠️ substituted with npm | — | See "pnpm deviation" below |
-| Git | ✅ installed | 2.51.2.windows.1 | |
-| Docker / Docker Compose | ❌ not installed | — | `docker-compose.yml` is written and ready; install Docker Desktop to run local Postgres/Redis |
-| TypeScript | 📝 configured, not yet installed | — | `tsconfig.json` in place; package not yet added to `node_modules` |
-| ESLint / Prettier | 📝 configured, not yet installed | — | Config files in place (`.eslintrc.cjs`, `.prettierrc.json`) |
-| Vitest / Playwright | 📝 scripted, not yet installed | — | `package.json` scripts reference them |
-| PostgreSQL / Redis | 📝 defined via `docker-compose.yml` | — | Requires Docker |
-| Prisma / Drizzle, Socket.io, BullMQ, MapLibre, FFmpeg, Sharp, S3 client, Better Auth/Clerk, FCM, Web Push, Sentry, PostHog | ⏳ deferred | — | Not installed yet — see "Next install batch" below |
+| Tool                                                                                                                       | Status                              | Version          | Notes                                                                                         |
+| -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| Node.js                                                                                                                    | ✅ installed                        | v24.16.0         | Newer than LTS; fine for now, pin to LTS in CI later                                          |
+| npm                                                                                                                        | ✅ installed                        | 11.17.0          |                                                                                               |
+| pnpm                                                                                                                       | ⚠️ substituted with npm             | —                | See "pnpm deviation" below                                                                    |
+| Git                                                                                                                        | ✅ installed                        | 2.51.2.windows.1 |                                                                                               |
+| Docker / Docker Compose                                                                                                    | ❌ not installed                    | —                | `docker-compose.yml` is written and ready; install Docker Desktop to run local Postgres/Redis |
+| TypeScript                                                                                                                 | 📝 configured, not yet installed    | —                | `tsconfig.json` in place; package not yet added to `node_modules`                             |
+| ESLint / Prettier                                                                                                          | 📝 configured, not yet installed    | —                | Config files in place (`.eslintrc.cjs`, `.prettierrc.json`)                                   |
+| Vitest / Playwright                                                                                                        | 📝 scripted, not yet installed      | —                | `package.json` scripts reference them                                                         |
+| PostgreSQL / Redis                                                                                                         | 📝 defined via `docker-compose.yml` | —                | Requires Docker                                                                               |
+| Prisma / Drizzle, Socket.io, BullMQ, MapLibre, FFmpeg, Sharp, S3 client, Better Auth/Clerk, FCM, Web Push, Sentry, PostHog | ⏳ deferred                         | —                | Not installed yet — see "Next install batch" below                                            |
 
 ## pnpm deviation
 
@@ -60,13 +60,13 @@ vitest, @playwright/test, typescript-eslint) in the next session.
 
 All required setup outputs now exist:
 
-| Script | Purpose |
-|---|---|
-| `scripts/setup-windows.ps1` | Idempotent local setup (Windows) |
-| `scripts/setup-unix.sh` | Idempotent local setup (macOS/Linux) |
-| `scripts/verify-environment.mjs` | Checks runtimes, env var presence (no values printed), Docker Compose file; writes `artifacts/setup-verification.{json,md}` |
-| `scripts/dev.ps1` / `scripts/dev.sh` | Starts local infra (if Docker available) + dev server |
-| `scripts/reset-local-data.ps1` / `scripts/reset-local-data.sh` | Recreates local Postgres/Redis containers and reseeds — **local data only** |
+| Script                                                         | Purpose                                                                                                                     |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `scripts/setup-windows.ps1`                                    | Idempotent local setup (Windows)                                                                                            |
+| `scripts/setup-unix.sh`                                        | Idempotent local setup (macOS/Linux)                                                                                        |
+| `scripts/verify-environment.mjs`                               | Checks runtimes, env var presence (no values printed), Docker Compose file; writes `artifacts/setup-verification.{json,md}` |
+| `scripts/dev.ps1` / `scripts/dev.sh`                           | Starts local infra (if Docker available) + dev server                                                                       |
+| `scripts/reset-local-data.ps1` / `scripts/reset-local-data.sh` | Recreates local Postgres/Redis containers and reseeds — **local data only**                                                 |
 
 Run `node scripts/verify-environment.mjs` any time to check environment status
 without needing Docker or installed dependencies — it degrades gracefully and

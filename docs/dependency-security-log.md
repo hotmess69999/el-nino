@@ -7,14 +7,14 @@ project (established 2026-07-31).
 ## Policy summary
 
 - All installs still go through `bash /c/Users/jasmi/safe-package-install.sh
-  npm <pkg>@<version> ...` (the org-wide `PreToolUse` hook at
+npm <pkg>@<version> ...` (the org-wide `PreToolUse` hook at
   `~/.claude/hooks/npm-pip-install-guard.sh` blocks any direct `npm install
-  <pkg>` — it is untouched and still enforced).
+<pkg>` — it is untouched and still enforced).
 - The guard itself (`~/.claude/safe-package-install.sh` — actually located at
   `/c/Users/jasmi/safe-package-install.sh`) was extended, not disabled or
   bypassed, with a narrow allowlist override:
   - Backed up before editing to `~/.safe-package-install/backups/safe-package-install.sh.<timestamp>.bak`.
-  - A package can only be installed despite a *heuristic* finding (base64 blob,
+  - A package can only be installed despite a _heuristic_ finding (base64 blob,
     hardcoded IP, suspicious URL, `eval()`, npm install hook, env-var-harvest
     pattern) if it has an exact `name@version` entry in this project's
     `security/approved-packages.json` **and** the allowlisted integrity hash is
@@ -108,7 +108,7 @@ project (established 2026-07-31).
   vendored dependency's `node/main.js` (bundled TS-language-server tooling,
   not typescript's own runtime). `@types/node` — example IP addresses inside
   JSDoc comments in `net.d.ts`/`os.d.ts` (illustrating socket/OS API shapes)
-  and `process.env` *type references* (not runtime code) in
+  and `process.env` _type references_ (not runtime code) in
   `child_process.d.ts`/`http.d.ts`/`test.d.ts`. `@types/react` and
   `@types/react-dom` triggered nothing on their own.
 - **Reason for approval:** All four are type-only or first-party Microsoft
@@ -122,7 +122,7 @@ project (established 2026-07-31).
   writes to `"dependencies"` (no `--save-dev` support). Manually moved
   `typescript` and the three `@types/*` packages to `"devDependencies"` in
   `package.json` after the vetted install completed, then ran a bare `npm
-  install --ignore-scripts` (no package args — allowed directly by the
+install --ignore-scripts` (no package args — allowed directly by the
   routing hook since it isn't installing a named package) to reconcile the
   lockfile. No new code was fetched or scanned by this step, only the
   manifest section changed.
@@ -147,6 +147,55 @@ project (established 2026-07-31).
   has an install script at all (see above) — no further action needed. This
   note is kept for history since it was true of the originally-resolved
   `sharp@0.34.5`.
+
+### `eslint@10.8.0`, `@eslint/js@10.0.1`, `typescript-eslint@8.65.0`, `eslint-config-prettier@10.1.8`, `prettier@3.9.6`
+
+- **Publishers:** `eslint`/`@eslint/js` — OpenJS Foundation (`openjsfoundation`,
+  `eslintbot`). `typescript-eslint` — its long-standing maintainers
+  (`jameshenry`, `bradzacher`). `eslint-config-prettier` — its long-standing
+  maintainers (`jounqin`, `lydell`, `thorn0`). `prettier` — the Prettier core
+  team.
+- **Approved:** 2026-07-31
+- **Triggered heuristics:** `eslint` — an embedded PNG icon (base64) in its
+  own HTML report formatter; `eval()` matches inside its own `no-eval`/
+  `no-implied-eval` rule source (which detects `eval()` in *user* code, so
+  necessarily contains the literal string). `typescript-eslint` — same
+  eval-detection-rule pattern in `@typescript-eslint/eslint-plugin`.
+  `prettier` — IP-address-shaped example strings in dependency READMEs
+  (`esutils`, `semver`, `uri-js`) and a substring false-positive
+  (`https://www.thereadyset.co/` contains `t.co/` as a substring, tripping
+  the URL-shortener pattern despite not being a `t.co` link). `@eslint/js`
+  and `eslint-config-prettier` triggered nothing on their own.
+- **Reason for approval:** every finding traced to either a legitimate
+  embedded asset, a linter's own rule-detection source code, or
+  documentation/README false-positive text — none executable exfiltration.
+  No ClamAV/GuardDog/Socket hard finding for any of the five. All `dist.integrity`
+  values re-verified live at install time.
+- **Blocking issue found and fixed:** `typescript-eslint@8.65.0` (latest
+  stable) peer-requires `typescript >=4.8.4 <6.1.0` — incompatible with the
+  `typescript@7.0.2` installed in the previous batch. No stable
+  `typescript-eslint` release supports TypeScript 7.x yet (only alpha/canary
+  tags). Rather than pin an alpha release of a critical linting tool,
+  **downgraded to `typescript@5.9.3`** (latest stable release within
+  typescript-eslint's supported range; re-vetted and re-approved above,
+  superseding the original `7.0.2` allowlist entry). `next@16.2.12` has no
+  typescript peer constraint, so this is safe.
+- **Correction after install:** same as the previous batch — the guard
+  writes to `"dependencies"`, so all five were manually moved to
+  `"devDependencies"` and the lockfile reconciled with a bare `npm install
+  --ignore-scripts`.
+- **Config migration:** ESLint 10 requires flat config
+  (`eslint.config.mjs`) — replaced the legacy `.eslintrc.cjs` (which ESLint
+  10 doesn't read at all) with a flat config using
+  `@eslint/js` recommended rules + `typescript-eslint` recommended rules +
+  `eslint-config-prettier` (to disable formatting-related rules Prettier
+  already owns), plus explicit Node globals (`console`, `process`, `Buffer`,
+  etc.) needed for the `scripts/*.mjs` files.
+- **Post-install verification:** `npm run lint` (0 errors), `npm run
+  typecheck` (0 errors, now against `typescript@5.9.3`), and `npx prettier
+  --check .` all pass cleanly. Ran `npm run format` once to establish a
+  consistent baseline (cosmetic-only reformatting of existing Markdown/JSON/
+  script files — table alignment, JSON array wrapping; no content changes).
 
 ## Telemetry
 

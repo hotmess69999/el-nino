@@ -100,7 +100,9 @@ const md = [
   "",
   "| Tool | Present | Version |",
   "|---|---|---|",
-  ...results.runtimes.map((r) => `| ${r.name} | ${r.present ? "yes" : "no"} | ${r.version ?? "-"} |`),
+  ...results.runtimes.map(
+    (r) => `| ${r.name} | ${r.present ? "yes" : "no"} | ${r.version ?? "-"} |`,
+  ),
   "",
   "## Environment variables (presence only — no values printed)",
   "",

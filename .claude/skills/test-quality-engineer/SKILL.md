@@ -46,7 +46,7 @@ refactoring.
 ## Checks
 
 - No checkpoint is marked complete with a failing or skipped required check.
-- Regression tests exist for preserved behaviour *before* a refactor lands, not
+- Regression tests exist for preserved behaviour _before_ a refactor lands, not
   after.
 - Traceability map has no acceptance criterion left unmapped to a test for shipped
   features.

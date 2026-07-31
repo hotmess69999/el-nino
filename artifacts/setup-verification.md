@@ -2,13 +2,13 @@
 
 ## Runtimes
 
-| Tool | Present | Version |
-|---|---|---|
-| node | yes | v24.16.0 |
-| npm | yes | 11.17.0 |
-| git | yes | git version 2.51.2.windows.1 |
-| docker | no | - |
-| docker compose | no | - |
+| Tool           | Present | Version                      |
+| -------------- | ------- | ---------------------------- |
+| node           | yes     | v24.16.0                     |
+| npm            | yes     | 11.17.0                      |
+| git            | yes     | git version 2.51.2.windows.1 |
+| docker         | no      | -                            |
+| docker compose | no      | -                            |
 
 ## Environment variables (presence only — no values printed)
 

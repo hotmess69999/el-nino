@@ -55,9 +55,7 @@
     "integrity": "sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==",
     "publisher": "ai <andrey@sitnik.es> (Andrey Sitnik, PostCSS author)",
     "approvedDate": "2026-07-31",
-    "triggeredHeuristics": [
-      "static: hardcoded IP address(es) found"
-    ],
+    "triggeredHeuristics": ["static: hardcoded IP address(es) found"],
     "reason": "npm audit flagged next@16.2.12's transitive postcss@8.4.31 for GHSA-qx2v-qp2m-jg93, GHSA-6g55-p6wh-862q, GHSA-r28c-9q8g-f849 (XSS/path-traversal/info-disclosure, all patched in postcss>=8.5.18). Pinned via package.json \"overrides\" to the patched, latest stable release. This is remediation of a real, disclosed CVE — not a heuristic override; approved directly because the fix removes the vulnerability rather than bypassing detection of it. The one heuristic hit traced to the bundled 'semver' dependency's own example strings (e.g. '1.2.3.4' in semver's README/coerce.js), not a real IP."
   },
   {
@@ -79,7 +77,17 @@
       "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
       "static: possible env-var harvesting (env access + outbound network call in same file)"
     ],
-    "reason": "Official TypeScript package published by Microsoft's verified TypeScript team accounts. The suspicious-URL hit is an http://127.0.0.1:8080/... test-fixture URL inside the vendored vscode-jsonrpc dependency's package.json (not a live callback). The env-var-harvest hit is vscode-jsonrpc's node/main.js (bundled dev-tooling for TS language server integration), not typescript's own runtime. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view typescript@7.0.2 dist.integrity`."
+    "reason": "Official TypeScript package published by Microsoft's verified TypeScript team accounts. The suspicious-URL hit is an http://127.0.0.1:8080/... test-fixture URL inside the vendored vscode-jsonrpc dependency's package.json (not a live callback). The env-var-harvest hit is vscode-jsonrpc's node/main.js (bundled dev-tooling for TS language server integration), not typescript's own runtime. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view typescript@7.0.2 dist.integrity`.",
+    "note": "SUPERSEDED 2026-07-31 by typescript@5.9.3 below — typescript-eslint@8.65.0 (the latest stable release) only supports TypeScript >=4.8.4 <6.1.0, and no stable typescript-eslint release supports TS 7.x yet (only alpha/canary). Downgraded to keep the linting toolchain on a stable release rather than pin an alpha. This entry is kept for history."
+  },
+  {
+    "name": "typescript",
+    "version": "5.9.3",
+    "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+    "publisher": "typescript-bot <typescript@microsoft.com> / typescript-deploys / microsoft-oss-releases (Microsoft)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [],
+    "reason": "Official TypeScript package published by Microsoft's verified TypeScript team accounts. No findings triggered at all — this older, more widely-supported release doesn't bundle the vscode-jsonrpc dev-tooling that triggered heuristics on 7.0.2. Chosen specifically because it's the latest stable release within typescript-eslint@8.65.0's supported peer range (>=4.8.4 <6.1.0). Registry dist.integrity verified via `npm view typescript@5.9.3 dist.integrity`."
   },
   {
     "name": "@types/node",
@@ -110,5 +118,59 @@
     "approvedDate": "2026-07-31",
     "triggeredHeuristics": [],
     "reason": "Official @types/react-dom package (pure TypeScript type declarations, no executable code) published by DefinitelyTyped's Microsoft-owned account. No findings triggered on its own. Registry dist.integrity verified via `npm view @types/react-dom@19.2.4 dist.integrity`."
+  },
+  {
+    "name": "eslint",
+    "version": "10.8.0",
+    "integrity": "sha512-nuKKvN+oIBO0koN7Tm7dlkmnkc21mtt0QJLwAKzjLq14y6lRTdVG36MZHJ8eQHwdJMwZbQNMlPOYedMq/oVJvQ==",
+    "publisher": "openjsfoundation <npm@openjsf.org> / eslintbot <contact@eslint.org> (OpenJS Foundation)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found"
+    ],
+    "reason": "Official ESLint package published by the OpenJS Foundation's verified accounts. base64 hit is an embedded PNG icon in eslint's own HTML report formatter (lib/cli-engine/formatters/html.js) — a legitimate UI asset, not a payload. eval() hits are inside eslint's own no-eval/no-implied-eval rule source (lib/rules/no-eval.js) and eslint-scope, which contain the literal string \"eval(\" because their job is to detect eval() usage in *user* code — not executed themselves. IP/URL hits traced to dependency README examples (see typescript-eslint entry below for the shared batch scan). No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view eslint@10.8.0 dist.integrity`."
+  },
+  {
+    "name": "@eslint/js",
+    "version": "10.0.1",
+    "integrity": "sha512-zeR9k5pd4gxjZ0abRoIaxdc7I3nDktoXZk2qOv9gCNWx3mVwEn32VRhyLaRsDiJjTs0xq/T8mfPtyuXu7GWBcA==",
+    "publisher": "openjsfoundation <npm@openjsf.org> / eslintbot <contact@eslint.org> (OpenJS Foundation)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [],
+    "reason": "Official ESLint core-rules package (@eslint/js), same publisher as eslint above, scanned in the same batch. No findings triggered on its own.",
+    "note": "Scanned together with eslint/prettier/typescript-eslint/eslint-config-prettier in one sandbox tree; batch-level findings (base64/IP/URL/eval) are documented on the specific package they trace to."
+  },
+  {
+    "name": "typescript-eslint",
+    "version": "8.65.0",
+    "integrity": "sha512-/ggrHAwyjENDusvyxbuqxAC2dTnZg/Z8F+fgQtYIz+L6n/9HfSlEZcFGV/NsMNa6CkGk0xUjUAFwC0vHOflvIA==",
+    "publisher": "jameshenry <james@henry.sc> / bradzacher <brad.zacher@gmail.com> (typescript-eslint maintainers)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": ["static: eval() call(s) found"],
+    "reason": "Official typescript-eslint package, published by its well-known long-standing maintainers. The eval() hit is in @typescript-eslint/eslint-plugin's own dist/rules/no-implied-eval.js — same pattern-detection-not-execution situation as eslint's no-eval.js above. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view typescript-eslint@8.65.0 dist.integrity`."
+  },
+  {
+    "name": "eslint-config-prettier",
+    "version": "10.1.8",
+    "integrity": "sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==",
+    "publisher": "jounqin <admin@1stg.me> / lydell <simon.lydell@gmail.com> / thorn0 (long-standing eslint-config-prettier maintainers)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [],
+    "reason": "Official eslint-config-prettier package (a pure config-object export disabling ESLint rules that conflict with Prettier). No findings triggered on its own. Registry dist.integrity verified via `npm view eslint-config-prettier@10.1.8 dist.integrity`."
+  },
+  {
+    "name": "prettier",
+    "version": "3.9.6",
+    "integrity": "sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==",
+    "publisher": "jlongster / lydell / thorn0 / vjeux / fisker / suchipi / duailibe / ikatyang / azz / sosukesuzuki / prettier-bot (Prettier core team)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)"
+    ],
+    "reason": "Official Prettier package, well-established maintainer team. IP hits traced to dependency README.md documentation examples (esutils, semver, uri-js — RFC-style example addresses and semver version-string examples like 1.2.3.4, not real hosts). The URL hit is ajv's README linking to a sponsor site (https://www.thereadyset.co/) which substring-matches the \"t.co/\" shortener pattern only because \"...set.co/\" happens to contain that substring — not an actual t.co link. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view prettier@3.9.6 dist.integrity`."
   }
 ]

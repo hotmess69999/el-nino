@@ -13,7 +13,7 @@ Before any code changes:
 1. Audit it (functionality inventory, tech stack, data model, known issues) and
    record findings in [`TECH_DEBT.md`](./TECH_DEBT.md).
 2. Identify what is "mature functionality" per the master prompt's objective to
-   *preserve mature functionality and improve weak areas* — do not rewrite
+   _preserve mature functionality and improve weak areas_ — do not rewrite
    working features wholesale.
 3. Decide feature-by-feature: keep as-is, refactor in place, or rebuild against the
    new globe-first / vertical-feed design direction.
