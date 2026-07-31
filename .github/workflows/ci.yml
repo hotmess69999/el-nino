@@ -1,0 +1,93 @@
+# El Nino CI — lint, typecheck, unit/integration tests against a real
+# Postgres service container, Playwright (desktop + Pixel 7), production
+# build, and a dependency audit.
+#
+# Not active yet: this repository has no GitHub remote configured (see
+# docs/checkpoints/PHASE-4.md and the master prompt's resume state). This
+# workflow activates automatically the first time this branch is pushed to
+# a GitHub repository — GitHub Actions picks up any workflow file under
+# .github/workflows/ on push with no separate registration step. Until
+# then this file is inert (no such push has happened) — nothing runs, and
+# nothing was pushed by this change.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  DATABASE_URL: postgresql://el_nino:el_nino@localhost:5432/el_nino
+  AUTH_SECRET: ci-test-secret-not-for-production-use
+  APP_ENV: development
+  APP_BASE_URL: http://localhost:3000
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: el_nino
+          POSTGRES_PASSWORD: el_nino
+          POSTGRES_DB: el_nino
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U el_nino -d el_nino"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+
+      - name: Run deterministic seed
+        run: npx prisma db seed
+
+      - name: Unit + integration tests (including database-backed suites)
+        run: npx vitest run
+        env:
+          RUN_DB_TESTS: "1"
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright — desktop + Pixel 7
+        run: npx playwright test
+
+      - name: Upload Playwright traces (failed tests only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Production build
+        run: npm run build
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high

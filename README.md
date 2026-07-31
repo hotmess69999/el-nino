@@ -34,3 +34,18 @@ npm run db:migrate          # apply the database schema
 npm run db:seed             # optional — deterministic dev fixtures
 npm run dev
 ```
+
+## Windows Phase 9 database bring-up + full verification
+
+One-command setup, then the complete quality gate, from a Windows machine
+with Docker Desktop, PostgreSQL client tooling not required (the scripts use
+`docker compose exec`), Git, and a browser (for Playwright):
+
+```
+powershell -ExecutionPolicy Bypass -File scripts\setup-phase9.ps1
+powershell -ExecutionPolicy Bypass -File scripts\run-final-checks.ps1
+```
+
+See `docs/checkpoints/PHASE-7-8-9.md` for what each script does and why
+these were not run in the sandbox this repository was built in (no Docker
+available there).
