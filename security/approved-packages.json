@@ -172,5 +172,33 @@
       "static: suspicious URL(s) found (IP-based / shortener / pastebin)"
     ],
     "reason": "Official Prettier package, well-established maintainer team. IP hits traced to dependency README.md documentation examples (esutils, semver, uri-js — RFC-style example addresses and semver version-string examples like 1.2.3.4, not real hosts). The URL hit is ajv's README linking to a sponsor site (https://www.thereadyset.co/) which substring-matches the \"t.co/\" shortener pattern only because \"...set.co/\" happens to contain that substring — not an actual t.co link. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view prettier@3.9.6 dist.integrity`."
+  },
+  {
+    "name": "prisma",
+    "version": "7.9.1",
+    "integrity": "sha512-aPqePoZIqwlAchbgbFDO/wHqGB+7H1nj9gaM+OsL9h77S5S3TnLd9BgD3LnoeDikULo7cl2HSUrEyQ55Z7DYbg==",
+    "publisher": "prismabot <bot-npm@prisma.io> / pirix-gh <pierreantoine.urvoy@gmail.com> (Prisma)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: eval() call(s) found",
+      "static: npm install/postinstall/preinstall hook(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official Prisma CLI package, published by Prisma's own bot account. Scanned together with @prisma/client (below) in one sandbox tree; per-finding detail: (1) base64 — 79 blobs, almost entirely @prisma/client's embedded WASM query-compiler binaries for each supported database engine (postgres/mysql/sqlite/cockroachdb/etc, e.g. query_compiler_fast_bg.*.wasm-base64.js) — large, legitimate native binaries shipped base64-encoded for portability, plus some in the unrelated 'remeda' transitive dependency's .d.ts/.d.cts files (declaration-bundling artifact, not executable). (2) hardcoded-IP — numeric-literal false positives inside prisma's own minified build/child.js and build/studio.js bundles, plus a version-number example in the 'postgres' package's README and a URL test fixture in 'find-my-way' (unrelated transitive test dependency). (3) suspicious URL — mostly 127.0.0.1 localhost placeholders in @prisma/get-platform's jest/vitest snapshot-serializer test utilities and prisma studio's local-dev-server README link; ALSO includes http://169.254.169.254 (and /metadata/instance/compute/location, ${IMDS_TOKEN_PATH}) in @prisma/query-plan-executor — this is the standard cloud Instance Metadata Service address used by AWS/Azure/GCP SDKs for auto-detecting cloud region/credentials, part of Prisma Postgres/Accelerate's documented cloud-provider auto-detection, not a live callback under our control; the remaining hits are 'fast-uri' and 'find-my-way's own URL-confusion/SSRF *test fixtures* (files literally named security.test.js / full-url.test.js) deliberately using malicious-looking URLs to test their own parsing correctness. (4) eval() — none found specific to prisma itself in the reviewed excerpt; consistent with common bundler-runtime patterns elsewhere in this batch. (5) install hooks — @prisma/engines has a real 'postinstall: node scripts/postinstall.js' and prisma has a real 'preinstall: node scripts/preinstall-entry.js', both of which download the platform-specific native query-engine binary — this is Prisma's well-documented, expected installation behavior. Scripts remain disabled (--ignore-scripts) for this install; the query-engine binary is NOT downloaded yet and must be fetched via a separately-reviewed step (e.g. running scripts/postinstall.js directly, or `npx prisma generate`) before Prisma can actually connect to a database — tracked in docs/dependency-security-log.md. (6) env-var harvesting — DATABASE_URL/connection-string reads combined with network calls across prisma's CLI, @prisma/client's runtime, @prisma/fetch-engine (engine binary downloader), @prisma/studio-core (local Studio UI), @prisma/dev and @electric-sql/pglite-socket (Prisma's embedded local-Postgres 'prisma dev' feature) — this is exactly what a database ORM/CLI is supposed to do (read a connection string, talk to a database or fetch its engine binary), not evidence of exfiltration. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view prisma@7.9.1 dist.integrity`."
+  },
+  {
+    "name": "@prisma/client",
+    "version": "7.9.1",
+    "integrity": "sha512-+xgrh2EhJVF79wC0yX5G4PI1Rdcm7Qn/nekNQ+t/O153wtNggruHal+fXHSa0QE+Tp/Cw5wvxeCEhZZ59xGm8Q==",
+    "publisher": "prismabot <bot-npm@prisma.io> / aqrln / wmadden-prisma / rtbenfield (Prisma)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official Prisma client runtime package, same publisher account as prisma above, scanned in the same batch — see the prisma@7.9.1 entry for full per-finding detail (the WASM query-compiler base64 blobs and DATABASE_URL/network access are @prisma/client's own runtime, described there). No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view @prisma/client@7.9.1 dist.integrity`."
   }
 ]

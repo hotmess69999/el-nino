@@ -158,7 +158,7 @@ install --ignore-scripts` (no package args — allowed directly by the
 - **Approved:** 2026-07-31
 - **Triggered heuristics:** `eslint` — an embedded PNG icon (base64) in its
   own HTML report formatter; `eval()` matches inside its own `no-eval`/
-  `no-implied-eval` rule source (which detects `eval()` in *user* code, so
+  `no-implied-eval` rule source (which detects `eval()` in _user_ code, so
   necessarily contains the literal string). `typescript-eslint` — same
   eval-detection-rule pattern in `@typescript-eslint/eslint-plugin`.
   `prettier` — IP-address-shaped example strings in dependency READMEs
@@ -183,7 +183,7 @@ install --ignore-scripts` (no package args — allowed directly by the
 - **Correction after install:** same as the previous batch — the guard
   writes to `"dependencies"`, so all five were manually moved to
   `"devDependencies"` and the lockfile reconciled with a bare `npm install
-  --ignore-scripts`.
+--ignore-scripts`.
 - **Config migration:** ESLint 10 requires flat config
   (`eslint.config.mjs`) — replaced the legacy `.eslintrc.cjs` (which ESLint
   10 doesn't read at all) with a flat config using
@@ -192,10 +192,41 @@ install --ignore-scripts` (no package args — allowed directly by the
   already owns), plus explicit Node globals (`console`, `process`, `Buffer`,
   etc.) needed for the `scripts/*.mjs` files.
 - **Post-install verification:** `npm run lint` (0 errors), `npm run
-  typecheck` (0 errors, now against `typescript@5.9.3`), and `npx prettier
-  --check .` all pass cleanly. Ran `npm run format` once to establish a
+typecheck` (0 errors, now against `typescript@5.9.3`), and `npx prettier
+--check .` all pass cleanly. Ran `npm run format` once to establish a
   consistent baseline (cosmetic-only reformatting of existing Markdown/JSON/
   script files — table alignment, JSON array wrapping; no content changes).
+
+### `prisma@7.9.1` (dev), `@prisma/client@7.9.1` (runtime)
+
+- **Publisher:** `prismabot <bot-npm@prisma.io>` (Prisma's own release account),
+  co-maintained by named Prisma engineers.
+- **Approved:** 2026-07-31 — see the detailed per-finding breakdown in
+  `security/approved-packages.json`, which is long because this batch
+  legitimately triggered every heuristic category at once (79 base64 blobs
+  from embedded per-database WASM query-compiler binaries; install hooks on
+  `@prisma/engines`/`prisma` for platform-binary fetching; IP/URL hits mostly
+  from test-fixture localhost placeholders and one real, expected
+  `169.254.169.254` cloud Instance Metadata Service reference in
+  `@prisma/query-plan-executor` used for Prisma Postgres/Accelerate's
+  cloud-provider auto-detection; env-var/network access that is simply
+  Prisma reading `DATABASE_URL` and talking to a database or its own engine
+  binaries — normal ORM behavior).
+- **Correction after install:** moved `prisma` (the CLI, a dev/build tool)
+  to `devDependencies`; `@prisma/client` (the runtime query client used by
+  application code) stayed in `dependencies`. Lockfile reconciled with a bare
+  `npm install --ignore-scripts`.
+- **Post-install verification:** despite `--ignore-scripts`,
+  `node_modules/@prisma/engines/schema-engine-windows.exe` is already
+  present — Prisma 7.x ships platform query/schema-engine binaries as
+  regular package content (not a postinstall download), so no additional
+  script-enabling step was needed to get a working CLI. `npx prisma
+--version` reports prisma/`@prisma/client` 7.9.1, Query Compiler enabled,
+  Schema Engine present. `npm audit`: 0 vulnerabilities (241 packages
+  total). `npm run lint` and `npm run typecheck` both pass cleanly.
+- **Not yet done:** no `prisma/schema.prisma` exists yet (no data model —
+  that's Phase 1+ application work, not Phase 0 tooling installation).
+  `npx prisma generate`/`migrate` will be exercised once a schema exists.
 
 ## Telemetry
 
