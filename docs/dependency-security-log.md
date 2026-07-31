@@ -290,6 +290,51 @@ typecheck` (0 errors, now against `typescript@5.9.3`), and `npx prettier
 vitest run` (12/12), and `npm run build` all pass cleanly with the plugin
   active.
 
+### `maplibre-gl@6.1.0` (dependency)
+
+- **Publisher:** `maplibreorg <board@maplibre.org>` (MapLibre org account), with
+  named long-standing maintainers.
+- **Approved:** 2026-07-31 (Phase 2).
+- **Triggered heuristics:** hardcoded-IP-pattern hits were all path/coordinate
+  numbers inside MapLibre's own attribution-logo SVG
+  (`src/css/svg/maplibregl-ctrl-logo.svg`) — dotted-decimal SVG path data
+  coincidentally matching the IPv4 regex, not real hosts. The eval() hit was
+  in the transitive dependency `@mapbox/jsonlint-lines-primitives`'s bundled
+  `json2.js`, a legacy JSON-parsing polyfill with its own historical
+  eval()-based fallback — not maplibre-gl's own runtime.
+- **Reason for approval:** official MapLibre release, findings traced to
+  non-runtime SVG asset content and an unrelated legacy polyfill. No
+  ClamAV/GuardDog/Socket hard finding. Registry `dist.integrity` re-verified
+  live at install time.
+- **Real bug found and fixed (not a security finding):** a GeoJSON source
+  declared in MapLibre's _initial_ style object hung style loading
+  indefinitely in this project's Next.js/Turbopack setup — `styledata`
+  stayed `false`, `render` fired repeatedly, but `load`/`idle` never fired
+  and no error was thrown (confirmed via a standalone Playwright script
+  capturing console/pageerror/failed-request events — none fired). Isolated
+  by testing a bare `{sources: {}}` style (worked instantly) versus the same
+  style plus one GeoJSON source (hung indefinitely, even after 20s). Fixed
+  by moving the graticule source/layer to `map.addSource()`/`addLayer()`
+  inside the `load` handler instead of the initial `style` object — see
+  `src/lib/map/config.ts` and `src/components/map/GlobeMap.tsx`.
+
+## Playwright browser binaries (Phase 2)
+
+Per the Phase 2 instruction to install the browser binary "through the
+reviewed process" once the map flow is stable: ran `npx playwright install
+chromium`. **No download actually occurred** — Chromium, Firefox, WebKit,
+ffmpeg, and winldd were already present in
+`%LOCALAPPDATA%\ms-playwright\` from 2026-07-25, before this session. What
+`playwright install` does when it _does_ need to download: fetches a
+prebuilt browser archive over HTTPS from Microsoft's Playwright CDN
+(`https://playwright.download.prss.microsoft.com` or the configured
+`PLAYWRIGHT_DOWNLOAD_HOST`), a well-known, expected mechanism documented by
+Playwright itself — not an npm package install, so it is outside
+`safe-package-install.sh`'s scope by design. The full e2e suite (desktop +
+Pixel 7 mobile projects, 20 tests: navigation flows, marker rendering, event
+preview, keyboard activation, responsive nav layout) was run against real
+Chromium and passed.
+
 ## Telemetry
 
 `NEXT_TELEMETRY_DISABLED=1` is set in `.env.example` and exported by

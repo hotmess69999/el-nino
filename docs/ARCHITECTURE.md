@@ -17,9 +17,10 @@ summarises, and section 27 for the phased delivery plan this project follows.
 ## Target shape (per the master prompt)
 
 - **Web app**: Next.js (App Router) — decided in
-  [ADR 0001](./decisions/0001-frontend-framework.md). Globe-first UI (MapLibre + a
-  WebGL globe layer, not yet added — see Phase 1 checkpoint), TikTok-style vertical
-  video feed (Phase 3).
+  [ADR 0001](./decisions/0001-frontend-framework.md). Globe-first UI: MapLibre GL JS
+  (`maplibre-gl@6.1.0`) with a self-contained, no-provider dark style — see the
+  Phase 2 checkpoint and `docs/DESIGN_SYSTEM.md`. TikTok-style vertical video feed
+  is Phase 3.
 - **Realtime**: Socket.io (or similar) for active-event updates, warning issue/
   update/cancel/expiry, upload progress, comments, admin queues — durable state stays
   in Postgres; clients recover via cursor refetch, not an assumption nothing was
@@ -51,8 +52,11 @@ summarises, and section 27 for the phased delivery plan this project follows.
 - Monorepo layout (single app vs. apps/ + packages/ workspace) once native
   mobile/desktop clients and public APIs come into scope
 - First warning provider to integrate for Phase 6
+- First live basemap/tile provider (none is integrated yet — see Phase 2
+  checkpoint; `src/lib/map/config.ts` uses a self-contained style with no
+  external dependency or API key)
 
-## Repository layout (current, end of Phase 1)
+## Repository layout (current, end of Phase 2)
 
 ```
 el-nino/
@@ -60,19 +64,24 @@ el-nino/
 ├── specs/                   # master-prompt specs (authoritative + superseded draft)
 ├── security/                # dependency install allowlist (see docs/dependency-security-log.md)
 ├── scripts/                 # setup/dev/verify/reset scripts (Phase 0)
-├── e2e/                     # Playwright specs (not yet run — see Phase 1 checkpoint)
+├── e2e/                     # Playwright specs — nav.spec.ts, map.spec.ts (run, passing)
 ├── src/
 │   ├── app/                 # Next.js App Router routes
 │   │   ├── layout.tsx       # root layout: skip link, nav shell, main landmark
-│   │   ├── page.tsx         # Globe home (placeholder visual — MapLibre is Phase 2)
+│   │   ├── page.tsx         # Globe home — real MapLibre GlobeMap component
 │   │   ├── feed/            # placeholder — Phase 3
 │   │   ├── upload/          # placeholder — Phase 5
 │   │   ├── alerts/          # placeholder — Phase 6
 │   │   └── profile/         # placeholder — Phase 4
 │   ├── components/
+│   │   ├── map/             # GlobeMap, EventPreview — the globe/map feature
 │   │   ├── nav/             # NavShell (single responsive landmark) + icon set
-│   │   └── shared/           # PlaceholderScreen (honest "not built yet" surface)
-│   ├── lib/                 # navigation.ts, tokens.ts (+ their unit tests)
+│   │   └── shared/          # PlaceholderScreen (honest "not built yet" surface)
+│   ├── lib/
+│   │   ├── map/             # config, categories, events, seedEvents, graticule,
+│   │   │                    # toGeoJSON, webgl (+ unit tests for each)
+│   │   ├── navigation.ts
+│   │   └── tokens.ts
 │   └── styles/               # tokens.css (design-token source of truth)
 ├── docker-compose.yml        # local Postgres + Redis
 ├── package.json

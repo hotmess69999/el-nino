@@ -1,0 +1,131 @@
+.wrap {
+  position: fixed;
+  inset: 0;
+  bottom: calc(var(--nav-height-mobile) + var(--safe-area-bottom));
+  background: var(--color-canvas);
+}
+
+@media (min-width: 1024px) {
+  .wrap {
+    left: var(--nav-width-desktop);
+    bottom: 0;
+  }
+}
+
+.canvasContainer {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+  background: var(--color-canvas);
+}
+
+.overlayTitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.overlayBody {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-muted);
+  max-width: 42ch;
+  margin: 0;
+}
+
+.fallbackList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 42ch;
+  width: 100%;
+  text-align: left;
+}
+
+.fallbackItem {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+}
+
+.marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-canvas);
+  background: var(--color-action);
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 30%);
+  cursor: pointer;
+  padding: 0;
+}
+
+.marker:hover {
+  filter: brightness(1.2);
+}
+
+.marker:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+.tag {
+  position: absolute;
+  z-index: var(--z-overlay);
+  top: var(--space-4);
+  left: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-divider);
+  background: var(--color-overlay-panel);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label-weight);
+}
+
+/* Restyle MapLibre's default light-themed controls to match the dark UI. */
+.wrap :global(.maplibregl-ctrl-group) {
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  box-shadow: none;
+  border-radius: var(--radius-sm);
+}
+
+.wrap :global(.maplibregl-ctrl-group button) {
+  background: transparent;
+}
+
+.wrap :global(.maplibregl-ctrl-group button:hover) {
+  background: var(--color-raised);
+}
+
+.wrap :global(.maplibregl-ctrl-attrib) {
+  background: transparent;
+}
+
+.wrap :global(.maplibregl-ctrl-attrib a) {
+  color: var(--color-text-muted);
+}

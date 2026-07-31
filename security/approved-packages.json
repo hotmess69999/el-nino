@@ -245,5 +245,17 @@
       "static: possible env-var harvesting (env access + outbound network call in same file)"
     ],
     "reason": "Official React ESLint plugin published by Meta's react-bot account. All findings trace to peer dependencies npm auto-installed alongside it (eslint, ajv, zod, @babel/parser), not the plugin's own source: eslint's embedded HTML-report PNG icon (base64), zod's own IP-address-validation unit test fixtures (192.168.1.1, deliberately-invalid 999.999.999.999/256.256.256.256, etc. — testing zod's own IP schema validator), ajv's README sponsor link, eslint's own no-eval/no-implied-eval rule source and eslint-scope (same pattern-detection-not-execution situation documented on the eslint@10.8.0 entry above), and @babel/parser's sourcemap noise. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view eslint-plugin-react-hooks@7.1.1 dist.integrity`."
+  },
+  {
+    "name": "maplibre-gl",
+    "version": "6.1.0",
+    "integrity": "sha512-vLRukjvbUai4SXW2/jKo8rPsw6YMXuA/b4fKFVSulZKFVRHkOvk4ZmNlDSVZpTYPV0/7/iTqq8ltYdyr764b7w==",
+    "publisher": "maplibreorg <board@maplibre.org> / nyurik / harelmazor / birkskyum (MapLibre org maintainers)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: hardcoded IP address(es) found",
+      "static: eval() call(s) found"
+    ],
+    "reason": "Official MapLibre GL JS package published by the MapLibre org account. The IP-address hits are all path/coordinate numbers inside MapLibre's own attribution-logo SVG (src/css/svg/maplibregl-ctrl-logo.svg) — dotted-decimal SVG path data coincidentally matching the IPv4 pattern, not real hosts. The eval() hit is in the transitive dependency @mapbox/jsonlint-lines-primitives' bundled json2.js (a legacy JSON-parsing polyfill with its own historical eval()-based JSON.parse fallback), not maplibre-gl's own runtime. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view maplibre-gl@6.1.0 dist.integrity`."
   }
 ]

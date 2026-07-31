@@ -58,6 +58,49 @@ has real data (master prompt section 18). Phase 1's placeholder routes
 doesn't apply to them — but any component built from Phase 2 onward must implement
 the relevant states before it's considered done.
 
+## Globe/map (Phase 2)
+
+`src/components/map/GlobeMap.tsx` renders the signature globe surface,
+replacing Phase 1's CSS placeholder. Key rules established here:
+
+- **No live tile provider or API key.** `src/lib/map/config.ts` builds a
+  self-contained MapLibre style: a `--color-canvas`-coloured background layer
+  plus a lat/lon graticule (`src/lib/map/graticule.ts`, pure/deterministic,
+  no network access), added via `map.addSource`/`addLayer` after `load`
+  rather than in the initial style object (a GeoJSON source in the initial
+  style hung MapLibre's style loading in this project's bundler setup — see
+  `docs/dependency-security-log.md`). When a real basemap/tile vendor is
+  chosen, it replaces this function's contents; nothing else should need to
+  change.
+- **Markers are real DOM `<button>` elements** (via `maplibregl.Marker`
+  with a custom HTML element), not a canvas-rendered symbol layer — this is
+  what makes them keyboard-focusable and screen-reader-accessible with a
+  single `aria-label`. Only reach for a canvas/clustering layer
+  (`src/lib/map/toGeoJSON.ts` exists for exactly that future case) once
+  marker volume genuinely justifies it — six seed markers do not.
+- **Marker colour comes from `CATEGORY_META`** (`src/lib/map/categories.ts`),
+  which maps each event category to an existing design token
+  (`--color-critical`, `--color-warning`, `--color-teal`, etc.) — never a
+  new one-off hex value.
+- **Controls stay minimal**: only `NavigationControl` with the compass
+  hidden (zoom in/out only), restyled in `GlobeMap.module.css` via `:global()`
+  selectors to match the dark surface instead of MapLibre's default light
+  theme. No attribution control (nothing external to attribute yet).
+- **The event preview is one panel**, not a floating-card stack — see
+  `src/components/map/EventPreview.tsx`. Its "view full event page" action
+  is honestly disabled (dashed border, `aria-disabled`), since the
+  `/events/:eventSlug` route doesn't exist yet — never link to a route that
+  404s.
+- **Required states**: `loading` (before `load` fires), `unsupported`
+  (WebGL probe fails — `src/lib/map/webgl.ts`), `error` (MapLibre's `error`
+  event fires). Both `unsupported` and `error` fall back to a plain
+  accessible list of the same seed events, so the content never becomes
+  unreachable if the map itself can't render.
+- **No decorative animation.** Unlike the Phase 1 CSS placeholder's
+  auto-rotating globe, the real map only moves in response to user
+  interaction (drag/zoom/keyboard) — nothing to gate behind
+  `prefers-reduced-motion` because there's no ambient motion to begin with.
+
 ## Accessibility baseline established in Phase 1
 
 - Skip-to-main-content link, visually hidden until focused (`layout.module.css`).

@@ -1,22 +1,28 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Not run yet — browser binaries are intentionally not downloaded until an
- * end-to-end suite is actually being exercised (see
- * docs/dependency-security-log.md). `npx playwright install` is a separate,
- * explicitly reviewed step.
+ * Browser binaries were reviewed and run as an explicit Phase 2 step — see
+ * docs/dependency-security-log.md for what `playwright install` does and
+ * what was actually verified.
  */
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // Each test launches a real WebGL context for the globe/map — too much
+  // parallelism starves them of GPU/CPU and causes flaky timeouts, not a
+  // product defect (verified clean with a single standalone browser run).
+  workers: 2,
   reporter: "list",
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", use: { ...devices["Pixel 7"] } },
+  ],
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
