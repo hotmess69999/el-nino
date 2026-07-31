@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./vendor/maplibre-gl.css" />
+    <style>
+      html,
+      body,
+      #map {
+        margin: 0;
+        height: 100%;
+        background: #0a0d12;
+      }
+      #log {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background: #000;
+        color: #0f0;
+        font: 12px monospace;
+        padding: 8px;
+        max-width: 100%;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="log">loading...</div>
+    <div id="map"></div>
+    <script type="module">
+      import { Map as MaplibreMap, getVersion } from "./vendor/maplibre-gl.mjs";
+      const log = document.getElementById("log");
+      const write = (msg) => {
+        log.textContent += "\n" + msg;
+        console.log(msg);
+      };
+      write("maplibre-gl loaded, version: " + (getVersion ? getVersion() : "unknown"));
+
+      const map = new MaplibreMap({
+        container: "map",
+        style: {
+          version: 8,
+          sources: {},
+          layers: [{ id: "bg", type: "background", paint: { "background-color": "#0a0d12" } }],
+        },
+        center: [0, 0],
+        zoom: 1,
+      });
+
+      map.on("load", () => {
+        write("load fired");
+        map.addSource("test", { type: "geojson", data: { type: "Point", coordinates: [0, 0] } });
+        write("source added, waiting 3s to check loaded()...");
+        setTimeout(() => {
+          const src = map.getSource("test");
+          write("RESULT: source.loaded() = " + src.loaded());
+          window.__RESULT__ = src.loaded();
+        }, 3000);
+      });
+
+      map.on("error", (e) => write("MAP ERROR: " + e.error?.message));
+      window.addEventListener("error", (e) => write("WINDOW ERROR: " + e.message));
+    </script>
+  </body>
+</html>
