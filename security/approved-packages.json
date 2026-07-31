@@ -68,5 +68,47 @@
     "approvedDate": "2026-07-31",
     "triggeredHeuristics": [],
     "reason": "npm audit flagged next@16.2.12's optional transitive sharp@0.34.5 for inherited libvips CVEs (CVE-2026-33327/33328/35590/35591), patched in sharp>=0.35.0. Pinned via package.json \"overrides\" to the patched, latest stable release. sharp's install script remains disabled (--ignore-scripts) and its native binary is not built — it is not yet used by this project (see docs/dependency-security-log.md, 'Deferred / not enabled')."
+  },
+  {
+    "name": "typescript",
+    "version": "7.0.2",
+    "integrity": "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==",
+    "publisher": "typescript-bot <typescript@microsoft.com> / typescript-deploys / microsoft-oss-releases (Microsoft)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: suspicious URL(s) found (IP-based / shortener / pastebin)",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official TypeScript package published by Microsoft's verified TypeScript team accounts. The suspicious-URL hit is an http://127.0.0.1:8080/... test-fixture URL inside the vendored vscode-jsonrpc dependency's package.json (not a live callback). The env-var-harvest hit is vscode-jsonrpc's node/main.js (bundled dev-tooling for TS language server integration), not typescript's own runtime. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view typescript@7.0.2 dist.integrity`."
+  },
+  {
+    "name": "@types/node",
+    "version": "26.1.2",
+    "integrity": "sha512-Vu4a5UFA9rIIFJ7rB/Vaafh9lrCQszopTCx6KjFboXTGQbPNasehVR5TEiithSDGyd1DEiUByggTZsg8jukeIg==",
+    "publisher": "types <ts-npm-types@microsoft.com> (DefinitelyTyped, Microsoft-owned publish account)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: hardcoded IP address(es) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official @types/node package (pure TypeScript type declarations, no executable code) published by DefinitelyTyped's Microsoft-owned account. Both findings trace to example IP addresses inside JSDoc comments in net.d.ts/os.d.ts (illustrating socket/OS API shapes, e.g. 192.168.1.108, 127.0.0.1) and process.env type references in child_process.d.ts/http.d.ts/test.d.ts (type-only declarations, not runtime code that reads env vars or makes network calls). No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view @types/node@26.1.2 dist.integrity`."
+  },
+  {
+    "name": "@types/react",
+    "version": "19.2.18",
+    "integrity": "sha512-AnzbBERsrLKtk2XSfTbYRLjQPdy116Sty4q+T+Bp3IC4l6jNBvreVPAHmpq9qhXQM7CXZPjLVmGMw9sy+hxQ3w==",
+    "publisher": "types <ts-npm-types@microsoft.com> (DefinitelyTyped, Microsoft-owned publish account)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [],
+    "reason": "Official @types/react package (pure TypeScript type declarations, no executable code) published by DefinitelyTyped's Microsoft-owned account. No findings triggered on its own; approved for consistency with the rest of this typed-dependency batch and because it is scanned as part of the same sandbox tree as @types/node. Registry dist.integrity verified via `npm view @types/react@19.2.18 dist.integrity`."
+  },
+  {
+    "name": "@types/react-dom",
+    "version": "19.2.4",
+    "integrity": "sha512-Bsc+QHgp+P/F02XDzNCY9jnZNCUuLki36KT7VKrTXXLdHf+vHMNZnW1rVu5DNW/rCK+fya3DATySbLM4yhtKUw==",
+    "publisher": "types <ts-npm-types@microsoft.com> (DefinitelyTyped, Microsoft-owned publish account)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [],
+    "reason": "Official @types/react-dom package (pure TypeScript type declarations, no executable code) published by DefinitelyTyped's Microsoft-owned account. No findings triggered on its own. Registry dist.integrity verified via `npm view @types/react-dom@19.2.4 dist.integrity`."
   }
 ]

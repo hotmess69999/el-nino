@@ -95,6 +95,48 @@ project (established 2026-07-31).
   removes the install-hook heuristic finding that `sharp@0.34.5` triggered.
 - **Triggered heuristics:** none.
 
+### `typescript@7.0.2`, `@types/node@26.1.2`, `@types/react@19.2.18`, `@types/react-dom@19.2.4`
+
+- **Publishers:** `typescript-bot`/`typescript-deploys`/`microsoft-oss-releases`
+  (Microsoft, TypeScript) and `types <ts-npm-types@microsoft.com>`
+  (DefinitelyTyped, Microsoft-owned account, for all three `@types/*`
+  packages).
+- **Approved:** 2026-07-31
+- **Triggered heuristics:** `typescript` — a test-fixture URL
+  (`http://127.0.0.1:8080/...`) inside its vendored `vscode-jsonrpc`
+  dependency's `package.json`, and an env-var-harvest match in that same
+  vendored dependency's `node/main.js` (bundled TS-language-server tooling,
+  not typescript's own runtime). `@types/node` — example IP addresses inside
+  JSDoc comments in `net.d.ts`/`os.d.ts` (illustrating socket/OS API shapes)
+  and `process.env` *type references* (not runtime code) in
+  `child_process.d.ts`/`http.d.ts`/`test.d.ts`. `@types/react` and
+  `@types/react-dom` triggered nothing on their own.
+- **Reason for approval:** All four are type-only or first-party Microsoft
+  tooling packages; the `@types/*` findings are inherent to any
+  TypeScript-declaration package that documents Node's networking APIs (the
+  patterns are in `.d.ts` comments, not executable code), and typescript's
+  findings trace to a vendored dev-tool dependency's own test fixtures. No
+  ClamAV/GuardDog/Socket hard finding for any of the four. All four registry
+  `dist.integrity` values re-verified live at install time.
+- **Correction after install:** the guard's `npm install --save-exact` always
+  writes to `"dependencies"` (no `--save-dev` support). Manually moved
+  `typescript` and the three `@types/*` packages to `"devDependencies"` in
+  `package.json` after the vetted install completed, then ran a bare `npm
+  install --ignore-scripts` (no package args — allowed directly by the
+  routing hook since it isn't installing a named package) to reconcile the
+  lockfile. No new code was fetched or scanned by this step, only the
+  manifest section changed.
+- **Post-install verification:** fixed a real `tsconfig.json` incompatibility
+  surfaced by this typecheck run — TypeScript 7.x removed the legacy
+  `baseUrl` compiler option (`TS5102`) and requires `paths` entries to be
+  explicitly relative (`TS5090`). Changed `"paths": {"@/*": ["src/*"]}` under
+  `baseUrl: "."` to `"paths": {"@/*": ["./src/*"]}` with `baseUrl` removed.
+  Added `src/lib/placeholder.ts` (temporary, documented as such, to be
+  deleted once Phase 1 adds real source) so `tsc --noEmit` had at least one
+  input file to actually verify the config against, rather than leaving it
+  unverified. `npm run typecheck` now passes cleanly. `npx next --version`
+  also confirmed the Next.js CLI resolves and runs.
+
 ## Deferred / not enabled
 
 - **`sharp`** was pulled into `node_modules` as an optional dependency of Next.js's
