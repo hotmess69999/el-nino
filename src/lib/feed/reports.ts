@@ -7,6 +7,10 @@ export interface FeedReport {
   readonly videoSrc: string;
   readonly contributorHandle: string;
   readonly caption: string;
+  /** DB Report row id this event corresponds to — see prisma/seed.ts. Lets
+   * the feed's Report control (Phase 8 moderation) target a real foreign
+   * key even though the feed itself only renders SEED_EVENTS. */
+  readonly reportId: string;
 }
 
 const CONTRIBUTOR_BY_EVENT_ID: Record<string, string> = {
@@ -29,6 +33,7 @@ export const FEED_REPORTS: readonly FeedReport[] = SEED_EVENTS.map((event) => ({
   videoSrc: `/media/${event.category}.mp4`,
   contributorHandle: CONTRIBUTOR_BY_EVENT_ID[event.id] ?? "@weather_observer",
   caption: event.summary,
+  reportId: `seed-report-${event.id}`,
 }));
 
 export function findReportByEventId(eventId: string): FeedReport | undefined {

@@ -1,6 +1,7 @@
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { fetchLocalWarnings } from "../src/lib/warnings/localAdapter";
+import { SEED_EVENTS } from "../src/lib/map/seedEvents";
 
 /**
  * Deterministic local dev/test data — fixed IDs and fields so this can be
@@ -80,6 +81,28 @@ async function main() {
       notificationsEnabled: true,
     },
   });
+
+  // Real DB Report rows matching the feed's seed events — see
+  // src/lib/feed/reports.ts's `reportId` field. This is what lets the feed's
+  // "Report" button (Phase 8 moderation) target something that actually
+  // exists as a foreign key, since the feed otherwise only renders
+  // SEED_EVENTS, which have no corresponding DB row on their own.
+  for (const event of SEED_EVENTS) {
+    await prisma.report.upsert({
+      where: { id: `seed-report-${event.id}` },
+      update: {},
+      create: {
+        id: `seed-report-${event.id}`,
+        contributorId: stormWatcher.id,
+        category: event.category,
+        caption: event.summary,
+        publicLatitude: event.latitude,
+        publicLongitude: event.longitude,
+        locationLabel: event.locationLabel,
+        status: "published",
+      },
+    });
+  }
 
   for (const record of fetchLocalWarnings()) {
     await prisma.officialWarning.upsert({

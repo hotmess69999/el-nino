@@ -1,18 +1,8 @@
 import { prisma } from "@/lib/db/client";
+import { MODERATION_REASONS, type ModerationReason } from "./reasons";
 
 export { isModeratorRole } from "./roles";
-
-export const MODERATION_REASONS = [
-  "off_topic",
-  "false_context",
-  "manipulated_media",
-  "unsafe_personal_information",
-  "harassment",
-  "copyright",
-  "illegal_content",
-  "other",
-] as const;
-export type ModerationReason = (typeof MODERATION_REASONS)[number];
+export { MODERATION_REASONS, type ModerationReason } from "./reasons";
 
 export async function fileModerationReport(
   reporterId: string,

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { CATEGORY_META } from "@/lib/map/categories";
 import { FEED_REPORTS } from "@/lib/feed/reports";
 import { GlobeIcon } from "@/components/nav/icons";
+import { ReportButton } from "./ReportButton";
 import styles from "./FeedScreen.module.css";
 
 const VERIFICATION_LABEL: Record<string, string> = {
@@ -202,6 +203,7 @@ export function FeedScreen() {
               >
                 <GlobeIcon width={20} height={20} />
               </Link>
+              <ReportButton reportId={report.reportId} eventName={report.event.name} />
             </div>
           </div>
         );
