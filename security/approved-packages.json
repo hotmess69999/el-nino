@@ -1,5 +1,55 @@
 [
   {
+    "name": "tsx",
+    "version": "4.23.1",
+    "integrity": "sha512-GQHnkIfxyx1wYCOS/wonik5MVRZU9hi1TEZmzGZSCJB1y9YgoZ8H6itNE/u4suE+yLmOzuE4E5S4TZ/ZX2wcWQ==",
+    "publisher": "npm registry (verified via `npm view tsx dist.integrity`)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: npm install/postinstall/preinstall hook(s) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Standard TypeScript execution tool, needed to run prisma/seed.ts — Node's own native TS-stripping (`node --experimental-strip-types`) cannot run Prisma's generated client because its internal relative imports are extensionless (bundler-resolution style, not raw Node ESM), confirmed by directly testing it in this sandbox and hitting ERR_MODULE_NOT_FOUND. tsx (esbuild-based) is the standard fix and is what Prisma's own seed-script documentation recommends. Per-finding review: (1) base64 — tsx's own bundled lexer chunks (dist/lexer-*.mjs/.cjs), legitimate bundled code, not a payload. (2) install hook — the optional transitive dependency esbuild's postinstall (node install.js), which selects/links the correct platform-specific esbuild binary from npm optional-dependency packages — the same documented, expected 'downloads/selects its own native binary' pattern already accepted for prisma/@prisma/engines and playwright above. Scripts remain disabled (--ignore-scripts) for this install same as every other entry in this log, so the binary is not fetched at install time; it is fetched lazily on first run and would need its own review pass before tsx can actually execute a script, tracked here same as Prisma's engine binary. (3) env-var harvesting — esbuild's node-platform.ts reading ESBUILD_BINARY_PATH to pick the binary location, standard install-time platform-detection code, not data exfiltration. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view tsx@4.23.1 dist.integrity`."
+  },
+  {
+    "name": "pg",
+    "version": "8.22.0",
+    "integrity": "sha512-8wih1vVIBMxoUM2oB4soJsD9tDnDpLv4OXBJ+EJzFsvycD+lfyIreC2gGHq78f8jbLLt+bvlPTFdFZfJkOuzAA==",
+    "publisher": "npm registry (verified via `npm view pg dist.integrity`)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: hardcoded IP address(es) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Required by @prisma/adapter-pg (driver adapter, Prisma 7's client-config model — ADR 0004) to connect Prisma to PostgreSQL. IP hit traces to pg-types' own test/types.js (unit test fixtures for parsing the Postgres 'inet'/'cidr' column types, e.g. example addresses used to assert correct parsing), not real hosts. Env-var-harvesting hits are pg/lib/crypto/cert-signatures.js (TLS certificate signature-algorithm verification for secure DB connections, standard driver behavior) and @types/node's http/net/dns/os/process .d.ts files (pure type declarations, already reviewed and approved on the @types/node@26.1.2 entry above — same file set, same reasoning). No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view pg@8.22.0 dist.integrity`."
+  },
+  {
+    "name": "@prisma/adapter-pg",
+    "version": "7.9.1",
+    "integrity": "sha512-Ho2RK1KanQxLNSC0sR5bpiiVep10sWPLXCcxK+KXfI/Q69TMRbiafSvLPv3V9snimX72rMCqGlyJ4sBO4lKTAw==",
+    "publisher": "npm registry (verified via `npm view @prisma/adapter-pg dist.integrity`)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "static: hardcoded IP address(es) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Official Prisma driver-adapter package (same publisher/org as prisma@7.9.1/@prisma/client@7.9.1 above), required by Prisma 7's client-config model which no longer accepts a schema-file datasource url (see docs/decisions/0004-database-and-orm.md). Findings are the same pg/@types/node file set scanned in this batch — see the pg@8.22.0 entry above for per-file detail. No ClamAV/GuardDog/Socket hard finding. Registry dist.integrity verified via `npm view @prisma/adapter-pg@7.9.1 dist.integrity`."
+  },
+  {
+    "name": "better-auth",
+    "version": "1.6.25",
+    "integrity": "sha512-fvoq+oCO+FF5fpP3XfU7znRyGFpHB77UG2EyxsKNy+Cak7Q5pELu+auvvDveQbWQxcoKugZ7jYQQPFQLpUTGOw==",
+    "publisher": "npm registry (verified via `npm view better-auth dist.integrity`)",
+    "approvedDate": "2026-07-31",
+    "triggeredHeuristics": [
+      "base64: long base64-like blob(s) found",
+      "static: hardcoded IP address(es) found",
+      "static: possible env-var harvesting (env access + outbound network call in same file)"
+    ],
+    "reason": "Selected by ADR 0003 (self-hosted, open-source auth). Per-finding review of the sandbox scan: (1) base64 — better-auth's own dist/plugins/open-api/logo.mjs (an embedded SVG logo for its OpenAPI docs plugin) and kysely's README.md SVG logo (better-auth's optional Kysely adapter dependency) — legitimate UI assets, not payloads. (2) hardcoded-IP — all trace to zod's own IP-address-validation unit test fixtures (node_modules/zod/src/v4/classic/tests/string.test.ts, e.g. 192.168.1.1, deliberately-invalid 999.999.999.999) and @opentelemetry/semantic-conventions's generated attribute-name constant files (example IPs like 1.2.3.4, 172.18.0.2 documenting what a 'network.peer.address' attribute might look like) — test fixtures and constant-string definitions, not real hosts or executable network code. (3) env-var harvesting — traces to the same @opentelemetry/semantic-conventions constant files (attribute-name strings referencing env/network concepts, not runtime env access) — better-auth pulls in OpenTelemetry as an optional instrumentation dependency. No ClamAV/GuardDog/Socket hard finding (tools not installed in this sandbox, consistent with every prior approval in this log). Registry dist.integrity verified via `npm view better-auth@1.6.25 dist.integrity` and matches this entry."
+  },
+  {
     "name": "react",
     "version": "19.2.8",
     "integrity": "sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==",

@@ -20,6 +20,12 @@ describe("FEED_REPORTS", () => {
       expect(report.caption.length).toBeGreaterThan(0);
     }
   });
+
+  it("gives every report a moderation-queue reportId matching prisma/seed.ts", () => {
+    for (const report of FEED_REPORTS) {
+      expect(report.reportId).toBe(`seed-report-${report.event.id}`);
+    }
+  });
 });
 
 describe("findReportByEventId", () => {

@@ -1,0 +1,275 @@
+// Prisma schema — see docs/decisions/0002-orm-choice.md and
+// docs/decisions/0004-database-and-orm.md for the ORM/database decision, and
+// docs/checkpoints/PHASE-4-PLAN.md for the Phase 4 scope this models.
+//
+// Watch Zones are stored as a point + radius (latitude/longitude/radiusKm),
+// not a geometry/PostGIS column — see docs/decisions/0004-database-and-orm.md
+// section "Geospatial limitations" for why, and
+// docs/investigations/MAPLIBRE-GEOJSON.md for the map-rendering gate this
+// keeps Phase 4 clear of.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum VerificationType {
+  none
+  meteorologist
+  emergency_service
+  media
+}
+
+// Section 16 — admin routes/actions are permission-checked against this,
+// never against verificationType (a public trust badge, not an access
+// grant — the two are deliberately separate fields).
+enum UserRole {
+  user
+  moderator
+  admin
+}
+
+model User {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  emailVerified    Boolean          @default(false)
+  name             String
+  username         String           @unique
+  image            String?
+  bio              String?
+  verificationType VerificationType @default(none)
+  role             UserRole         @default(user)
+  weatherScore     Int              @default(0)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  watchZones       WatchZone[]
+  preferences      UserPreference?
+  reports          Report[]
+  moderationReports ModerationReport[] @relation("Reporter")
+  moderationActions ModerationReport[] @relation("Reviewer")
+  following        Follow[]           @relation("Follower")
+  followers        Follow[]           @relation("Followed")
+
+  @@index([username])
+}
+
+// Better Auth's required tables (email/password provider) — field names and
+// shapes follow Better Auth's Prisma adapter contract, not application
+// preference. See docs/decisions/0003-auth-provider.md.
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followed", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+  @@index([followerId])
+}
+
+// Point + radius only — see the file header note on geospatial scope.
+model WatchZone {
+  id                   String   @id @default(cuid())
+  ownerId              String
+  owner                User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  label                String
+  latitude             Float
+  longitude            Float
+  radiusKm             Float
+  categories           String[]
+  minSeverity          String   @default("advisory")
+  notificationsEnabled Boolean  @default(true)
+  quietHoursStart      String?
+  quietHoursEnd        String?
+  paused               Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+model UserPreference {
+  userId            String   @id
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  autoplay          Boolean  @default(true)
+  mutedPlayback     Boolean  @default(true)
+  reducedData       Boolean  @default(false)
+  localisedWarnings Boolean  @default(true)
+  distanceUnit      String   @default("km")
+  timezone          String   @default("UTC")
+  updatedAt         DateTime @updatedAt
+}
+
+enum ReportStatus {
+  processing
+  published
+  rejected
+}
+
+// Phase 5 — smallest working upload pipeline. A single-shot upload
+// (not chunked/resumable — see docs/checkpoints/PHASE-5-6.md for why that's
+// deferred) that stores one local video file per report and marks it
+// published immediately after basic validation. No FFmpeg/derivative
+// transcoding yet — deferred until real footage volume justifies it, per
+// "add only when genuinely required" (master prompt Part I.B).
+model Report {
+  id             String       @id @default(cuid())
+  contributorId  String
+  contributor    User         @relation(fields: [contributorId], references: [id], onDelete: Cascade)
+  category       String
+  caption        String
+  // Public location only — reduced precision, never the contributor's exact
+  // submitted point. See docs/checkpoints/PHASE-5-6.md "Location privacy".
+  publicLatitude  Float
+  publicLongitude Float
+  locationLabel   String
+  status         ReportStatus @default(processing)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  media             MediaAsset[]
+  moderationReports ModerationReport[]
+
+  @@index([contributorId])
+  @@index([status])
+}
+
+model MediaAsset {
+  id           String   @id @default(cuid())
+  reportId     String
+  report       Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  storageKey   String
+  url          String
+  mimeType     String
+  byteSize     Int
+  checksum     String
+  createdAt    DateTime @default(now())
+
+  @@index([reportId])
+}
+
+// Phase 6 — provider-neutral official warning model (section 17/11). Only
+// one controlled adapter is wired (src/lib/warnings/localAdapter.ts, a
+// deterministic fixture provider — no real provider credentials exist in
+// this environment). Geometry is a point + radius, not a polygon, matching
+// the same gating reasoning as WatchZone (see file header).
+model OfficialWarning {
+  id               String    @id @default(cuid())
+  providerId       String
+  providerWarningId String
+  issuingAuthority String
+  category         String
+  severity         String
+  certainty        String
+  urgency          String
+  headline         String
+  description      String
+  instructions     String?
+  latitude         Float
+  longitude        Float
+  radiusKm         Float
+  issuedAt         DateTime
+  effectiveAt      DateTime
+  expiresAt        DateTime
+  sourceUrl        String?
+  cancelled        Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([providerId, providerWarningId])
+  @@index([expiresAt])
+}
+
+enum ModerationReportStatus {
+  open
+  actioned
+  dismissed
+}
+
+enum ModerationReportReason {
+  off_topic
+  false_context
+  manipulated_media
+  unsafe_personal_information
+  harassment
+  copyright
+  illegal_content
+  other
+}
+
+// Phase 8 — reports flag a Report (the weather-video content model, Phase 5)
+// for moderator review. Only moderator/admin roles may list/action these
+// (enforced server-side in src/lib/moderation/service.ts, never by hiding
+// the /admin/moderation route alone).
+model ModerationReport {
+  id           String                  @id @default(cuid())
+  reporterId   String
+  reporter     User                    @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetReportId String
+  target       Report                  @relation(fields: [targetReportId], references: [id], onDelete: Cascade)
+  reason       ModerationReportReason
+  note         String?
+  status       ModerationReportStatus  @default(open)
+  reviewerId   String?
+  reviewer     User?                   @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewNote   String?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  @@index([status])
+  @@index([targetReportId])
+}

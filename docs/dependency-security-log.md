@@ -335,6 +335,36 @@ Pixel 7 mobile projects, 20 tests: navigation flows, marker rendering, event
 preview, keyboard activation, responsive nav layout) was run against real
 Chromium and passed.
 
+## Phase 4 additions (2026-07-31)
+
+Four packages added for auth/database (see `docs/decisions/0003-auth-provider.md`
+and `docs/decisions/0004-database-and-orm.md`), each reviewed and added to
+`security/approved-packages.json` with per-finding detail before install —
+summarized here, full reasoning in that file:
+
+- **`better-auth@1.6.25`** — the auth library selected by ADR 0003. Heuristic hits
+  (base64, IP, env-var-harvest) all traced to its own bundled OpenAPI-docs logo
+  asset, zod's IP-validation test fixtures, and `@opentelemetry/semantic-
+  conventions`'s constant-name definitions — none executable, none real hosts.
+- **`pg@8.22.0`** and **`@prisma/adapter-pg@7.9.1`** — required by Prisma 7's new
+  client-config model, which no longer accepts a schema-file `datasource.url` (see
+  ADR 0004). Findings traced to `pg`'s own TLS-certificate verification code
+  (expected DB-driver behaviour) and `@types/node`'s type declarations (already
+  reviewed on the `@types/node@26.1.2` entry).
+- **`tsx@4.23.1`** (dev dependency) — needed to run `prisma/seed.ts`, since Node's
+  native `--experimental-strip-types` can't resolve Prisma's generated client
+  (confirmed directly: `ERR_MODULE_NOT_FOUND` on its extensionless internal
+  imports, which are written for bundler resolution, not raw Node ESM). The one
+  install-hook finding is the optional `esbuild` dependency's postinstall
+  (downloads/selects its own native binary, --ignore-scripts still applies here as
+  everywhere else in this log — same pattern already accepted for Prisma's and
+  Playwright's own binaries).
+
+No ClamAV/GuardDog/Socket hard finding on any of the four (tools remain
+unavailable in this sandbox, as for every prior entry). No database was reachable
+to actually run migrations/seed against in this pass — see ADR 0004's "Why not run
+in this pass" and the Phase 4 checkpoint for what was and wasn't verified.
+
 ## Telemetry
 
 `NEXT_TELEMETRY_DISABLED=1` is set in `.env.example` and exported by
