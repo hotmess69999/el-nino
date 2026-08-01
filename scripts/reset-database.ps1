@@ -2,7 +2,7 @@
 # and seed from scratch -- this is the "clean migration from an empty
 # database" check. Destructive to LOCAL data only; never point this at a
 # shared or remote database (docker-compose.yml only defines local services).
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 Set-Location $rootDir

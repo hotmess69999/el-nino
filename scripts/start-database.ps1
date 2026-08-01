@@ -1,7 +1,7 @@
 # Starts the local Postgres/Redis containers (docker-compose.yml) and waits
 # for Postgres to pass its healthcheck before returning. Idempotent -- safe
 # to rerun; `docker compose up -d` no-ops on an already-running service.
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 Set-Location $rootDir

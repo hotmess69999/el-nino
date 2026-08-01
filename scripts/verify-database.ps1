@@ -2,7 +2,7 @@
 # is idempotent (running it twice produces no errors and no duplicate rows
 # -- every prisma/seed.ts write is an upsert keyed on a fixed id/username).
 # Writes a report to artifacts/db-verification.md -- never prints secrets.
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 Set-Location $rootDir

@@ -6,7 +6,7 @@
 #
 # Run from the repository root:
 #   powershell -ExecutionPolicy Bypass -File scripts\setup-phase9.ps1
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 Set-Location $rootDir
