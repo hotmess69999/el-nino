@@ -2,13 +2,10 @@
 # Postgres service container, Playwright (desktop + Pixel 7), production
 # build, and a dependency audit.
 #
-# Not active yet: this repository has no GitHub remote configured (see
-# docs/checkpoints/PHASE-4.md and the master prompt's resume state). This
-# workflow activates automatically the first time this branch is pushed to
-# a GitHub repository — GitHub Actions picks up any workflow file under
-# .github/workflows/ on push with no separate registration step. Until
-# then this file is inert (no such push has happened) — nothing runs, and
-# nothing was pushed by this change.
+# Active: pushed to https://github.com/hotmess69999/el-nino. First run
+# failed at Typecheck because `prisma generate` never ran in CI before it
+# (src/generated/prisma is gitignored, generated locally on demand) --
+# fixed by adding an explicit generate step right after install.
 name: CI
 
 on:
@@ -53,6 +50,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Lint
         run: npm run lint
