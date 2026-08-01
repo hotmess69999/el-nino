@@ -33,9 +33,15 @@ export function UploadForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Capture the form element itself, not the SyntheticEvent -- React
+    // nulls out e.currentTarget once the handler yields past an await, so
+    // using it after the `await createReportAction` below throws
+    // "Cannot read properties of null (reading 'reset')" (caught live in
+    // CI: an unhandled rejection on every successful submit).
+    const form = e.currentTarget;
     setErrors({});
     setSubmitting(true);
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(form);
     const result = await createReportAction(formData);
     setSubmitting(false);
     if (!result.ok) {
@@ -43,7 +49,7 @@ export function UploadForm() {
       return;
     }
     setPublished(true);
-    e.currentTarget.reset();
+    form.reset();
   }
 
   return (
