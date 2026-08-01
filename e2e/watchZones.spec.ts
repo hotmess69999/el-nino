@@ -19,6 +19,12 @@ async function signUp(page: import("@playwright/test").Page, user: ReturnType<ty
   await page.getByLabel("Password").fill(user.password);
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/profile$/);
+  // Wait for real profile content, not just the URL -- under CI's slower
+  // rendering, router.push()+router.refresh() can leave the sign-up form's
+  // DOM node briefly overlapping the new page (both use the same AuthForm
+  // CSS module class), which intercepts the very next click. Caught live:
+  // this made "Save Watch Zone" time out in CI on the mobile project only.
+  await expect(page.getByRole("heading", { name: "Watch Zones" })).toBeVisible();
 }
 
 test.describe("Watch Zones", () => {
