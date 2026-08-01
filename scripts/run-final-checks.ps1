@@ -70,6 +70,14 @@ Write-Host ""
 Write-Host "== Lighthouse baseline (optional -- best-effort, fetches lighthouse via npx on first run) =="
 Write-Host "This downloads the lighthouse CLI on demand outside this project's install-security guard;"
 Write-Host "review before accepting if that matters for your environment."
+# Needs its own running server -- the smoke-test server above is already
+# stopped by this point (caught live: Lighthouse hit a closed port and
+# every audit failed with CHROME_INTERSTITIAL_ERROR).
+$lhServerJob = Start-Job -ScriptBlock {
+    Set-Location $using:rootDir
+    npm run start
+}
+Start-Sleep -Seconds 5
 try {
     $lhDir = Join-Path $rootDir "docs\performance"
     if (-not (Test-Path $lhDir)) { New-Item -ItemType Directory -Path $lhDir | Out-Null }
@@ -78,6 +86,9 @@ try {
 } catch {
     Write-Host "Lighthouse baseline skipped/failed: $($_.Exception.Message)"
     $results["Lighthouse baseline"] = $false
+} finally {
+    Stop-Job $lhServerJob | Out-Null
+    Remove-Job $lhServerJob -Force | Out-Null
 }
 
 Write-Host ""
