@@ -38,7 +38,7 @@ test.describe("Watch Zones", () => {
     await expect(page.getByText(/30 km radius/)).toBeVisible();
 
     // Edit
-    await page.getByRole("button", { name: "Edit" }).click();
+    await page.getByRole("button", { name: "Edit", exact: true }).click();
     await page.getByLabel("Name").fill("Renamed Zone");
     await page.getByRole("button", { name: "Save Watch Zone" }).click();
     await expect(page.getByText("Renamed Zone")).toBeVisible();

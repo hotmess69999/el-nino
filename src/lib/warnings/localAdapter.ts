@@ -26,9 +26,17 @@ export interface WarningRecord {
   sourceUrl?: string;
 }
 
-/** Fixed reference time so seeded fixtures stay reproducible across runs. */
-const REFERENCE = new Date("2026-07-31T12:00:00Z");
-const hoursFromReference = (h: number) => new Date(REFERENCE.getTime() + h * 60 * 60 * 1000);
+/**
+ * Relative to the real current time, not a fixed past date — an earlier
+ * version anchored this to a fixed 2026-07-31 reference, which meant these
+ * fixtures silently went permanently "expired" once real time passed that
+ * date (caught live: e2e/alerts.spec.ts started failing on 2026-08-01
+ * because listActiveWarnings() filters expiresAt > now). Ingestion is
+ * idempotent (upsert by providerId+providerWarningId), so re-seeding with a
+ * shifted window on every call is safe.
+ */
+const REFERENCE = () => new Date();
+const hoursFromReference = (h: number) => new Date(REFERENCE().getTime() + h * 60 * 60 * 1000);
 
 export function fetchLocalWarnings(): WarningRecord[] {
   return [

@@ -19,8 +19,10 @@ export interface SpaceWeatherItem {
   sourceUrl: string;
 }
 
-const REFERENCE = new Date("2026-07-31T12:00:00Z");
-const hoursFromReference = (h: number) => new Date(REFERENCE.getTime() + h * 60 * 60 * 1000);
+/** Relative to real current time, not a fixed past date — see the same fix
+ * and rationale in src/lib/warnings/localAdapter.ts. */
+const REFERENCE = () => new Date();
+const hoursFromReference = (h: number) => new Date(REFERENCE().getTime() + h * 60 * 60 * 1000);
 
 export function fetchLocalSpaceWeather(): SpaceWeatherItem[] {
   return [
