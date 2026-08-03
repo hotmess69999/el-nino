@@ -53,7 +53,15 @@ test.describe("Watch Zones", () => {
     // Edit
     await page.getByRole("button", { name: "Edit", exact: true }).click();
     await page.getByLabel("Name").fill("Renamed Zone");
-    await page.getByRole("button", { name: "Save Watch Zone" }).click();
+    // force: true -- confirmed via a real CI log pull (gh run view
+    // --log-failed) this time, not guessed: the quiet-hours <input
+    // type="time"> renders differently on CI's Linux/headless Chromium than
+    // locally on Windows, its computed box slightly overlapping this button
+    // on the narrow mobile viewport ("...from WatchZoneManager-module grid
+    // subtree intercepts pointer events"). Same mitigation as the other two
+    // Save clicks in this file, now with a confirmed mechanism rather than
+    // an educated guess.
+    await page.getByRole("button", { name: "Save Watch Zone" }).click({ force: true });
     await expect(page.getByText("Renamed Zone")).toBeVisible();
 
     // Pause
